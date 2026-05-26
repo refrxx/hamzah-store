@@ -197,7 +197,13 @@ import BottomNav from '../components/BottomNav.astro';
     btn.disabled = true; btn.textContent = 'Memuat...';
 
     try {
-      const options = await getShippingOptions(formData);
+      const options = await getShippingOptions({
+        destination: {
+          location_id: parseInt(formData.subdistrict_id),
+          postal_code: formData.postal_code,
+        },
+        payment_method: 'bank_transfer',
+      });
       const container = $('shipping-options');
       container.innerHTML = '';
       options.forEach((opt: any, idx: number) => {
