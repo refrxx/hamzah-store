@@ -62,9 +62,11 @@ import BottomNav from '../components/BottomNav.astro';
     const img = item.images?.[0] || item.meta_thumbnail || '/placeholder.svg';
     const price = parseFloat(item.price_range?.min ?? item.price_range?.max ?? item.min_price ?? item.price ?? '0');
     const slug = item.slug || '';
+    const type = item.entity_type || 'product';
+    const itemId = type === 'bundle_price_option' ? (item.bundle_price_option_id || '') : (item.variants?.[0]?.id || '');
     return `
       <div class="bg-white rounded-lg overflow-hidden shadow-sm">
-        <a href="/produk/?slug=${slug}">
+        <a href="/produk/?slug=${slug}&type=${type}">
           <div class="aspect-square overflow-hidden bg-gray-100">
             <img src="${img}" alt="${item.name}" loading="lazy"
               class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
@@ -72,14 +74,14 @@ import BottomNav from '../components/BottomNav.astro';
           </div>
         </a>
         <div class="p-2">
-          <a href="/produk/?slug=${slug}">
+          <a href="/produk/?slug=${slug}&type=${type}">
             <p class="text-xs font-medium line-clamp-2 mb-1" style="color:var(--text-primary)">${item.name}</p>
           </a>
           <p class="text-sm font-bold" style="color:var(--red)">${formatRupiah(price)}</p>
           <button
             class="add-to-cart mt-2 w-full py-1.5 rounded text-xs font-semibold transition-colors"
             style="background:var(--blue);color:white"
-            data-variant-id="${item.variants?.[0]?.id || ''}" data-slug="${slug}"
+            data-item-id="${itemId}" data-slug="${slug}" data-type="${type}"
           >
             + Keranjang
           </button>
@@ -127,13 +129,14 @@ import BottomNav from '../components/BottomNav.astro';
       grid.querySelectorAll('.add-to-cart').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           e.preventDefault();
-          const variantId = parseInt((btn as HTMLElement).dataset.variantId || '0');
+          const itemId = parseInt((btn as HTMLElement).dataset.itemId || '0');
           const slug = (btn as HTMLElement).dataset.slug || '';
-          if (!variantId) { window.location.href = `/produk/?slug=${slug}`; return; }
+          const type = (btn as HTMLElement).dataset.type || 'product';
+          if (!itemId) { window.location.href = `/produk/?slug=${slug}&type=${type}`; return; }
           (btn as HTMLButtonElement).disabled = true;
           btn.textContent = '...';
           try {
-            await addToCart(variantId, 1);
+            await addToCart(itemId, 1, type === 'bundle_price_option' ? 'bundle_price_option' : 'variant');
             await refreshCartBadge();
             btn.textContent = '✓ Ditambahkan';
             setTimeout(() => { btn.textContent = '+ Keranjang'; (btn as HTMLButtonElement).disabled = false; }, 1500);

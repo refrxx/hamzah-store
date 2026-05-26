@@ -65,9 +65,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
-  import { getProductDetail, addToCart, refreshCartBadge, formatRupiah } from '../../lib/scalev';
+  import { getProductDetail, getBundlePriceOption, addToCart, refreshCartBadge, formatRupiah } from '../../lib/scalev';
 
   const slug = new URLSearchParams(window.location.search).get('slug') || '';
+  const entityType = new URLSearchParams(window.location.search).get('type') || 'product';
 
   if (!slug) {
     document.querySelector('.app-shell')!.innerHTML = `
@@ -77,7 +78,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <a href="/" class="px-6 py-2 rounded-lg text-white text-sm font-bold" style="background:var(--blue)">Kembali</a>
       </div>`;
   } else {
-    let selectedVariantId: number | null = null;
+    let cartItemId: number | null = null;
+    let cartType: 'variant' | 'bundle_price_option' = 'variant';
     let quantity = 1;
 
     function showToast(msg: string, success = true) {
@@ -91,15 +93,24 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     async function init() {
       try {
-        const product = await getProductDetail(slug);
+        const product = entityType === 'bundle_price_option'
+          ? await getBundlePriceOption(slug)
+          : await getProductDetail(slug);
 
         document.title = `${product.name} - Hamzah Quran`;
         const headerTitle = document.getElementById('header-title');
         if (headerTitle) headerTitle.textContent = product.name;
 
-        const firstVariant = product.variants?.[0];
-        selectedVariantId = firstVariant?.id || null;
-        const price = parseFloat(firstVariant?.price ?? product.price_range?.min ?? product.price_range?.max ?? product.min_price ?? product.price ?? '0');
+        const price = parseFloat(product.price ?? product.price_range?.min ?? product.price_range?.max ?? '0');
+        if (entityType === 'bundle_price_option') {
+          cartItemId = product.bundle_price_option_id || product.id;
+          cartType = 'bundle_price_option';
+        } else {
+          const firstVariant = product.variants?.[0];
+          cartItemId = firstVariant?.id || null;
+          cartType = 'variant';
+        }
+
         document.getElementById('price-skeleton')?.classList.add('hidden');
         const priceEl = document.getElementById('product-price')!;
         priceEl.textContent = formatRupiah(price);
@@ -110,7 +121,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         nameEl.textContent = product.name;
         nameEl.classList.remove('hidden');
 
-        const images: any[] = product.images || [];
+        const images: string[] = product.images || [];
         if (images.length) {
           const loadingEl = document.getElementById('gallery-loading')!;
           const mainImg = document.getElementById('main-image') as HTMLImageElement;
@@ -154,7 +165,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
           list.querySelectorAll('.variant-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-              selectedVariantId = parseInt((btn as HTMLElement).dataset.id || '0');
+              cartItemId = parseInt((btn as HTMLElement).dataset.id || '0');
               const vPrice = parseFloat((btn as HTMLElement).dataset.price || '0');
               if (vPrice) priceEl.textContent = formatRupiah(vPrice);
               list.querySelectorAll('.variant-btn').forEach(b => {
@@ -193,11 +204,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
 
     async function handleAddToCart(redirect = false) {
-      if (!selectedVariantId) { showToast('Pilih varian dulu', false); return; }
+      if (!cartItemId) { showToast('Pilih varian dulu', false); return; }
       const btn = redirect ? document.getElementById('btn-buy') : document.getElementById('btn-cart');
       if (btn) { (btn as HTMLButtonElement).disabled = true; btn.textContent = '...'; }
       try {
-        await addToCart(selectedVariantId, quantity);
+        await addToCart(cartItemId, quantity, cartType);
         await refreshCartBadge();
         if (redirect) { window.location.href = '/cart'; }
         else { showToast('Berhasil ditambahkan ke keranjang ✓'); }

@@ -39,13 +39,20 @@ export const getProducts = (params: { per_page?: number; page?: number; search?:
 export const getProductDetail = (slug: string) =>
   scalevFetch(`/public/products/${slug}`);
 
+export const getBundlePriceOption = (slug: string) =>
+  scalevFetch(`/public/bundle-price-options/${slug}`);
+
 export const getGuestCart = () => scalevFetch('/public/cart');
 
-export const addToCart = (variantId: number, quantity = 1) =>
+export const addToCart = (id: number, quantity = 1, type: 'variant' | 'bundle_price_option' = 'variant') =>
   scalevFetch('/public/cart/items', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ type: 'variant', variant_id: variantId, quantity }),
+    body: JSON.stringify(
+      type === 'bundle_price_option'
+        ? { type: 'bundle_price_option', bundle_price_option_id: id, quantity }
+        : { type: 'variant', variant_id: id, quantity }
+    ),
   });
 
 export const updateCartItem = (itemId: number, quantity: number) =>
