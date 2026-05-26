@@ -1,0 +1,29 @@
+---
+export interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+  showBottomNav?: boolean;
+  paddingBottom?: boolean;
+}
+
+const { showBottomNav = true, paddingBottom = true } = Astro.props;
+---
+
+<div class="min-h-screen bg-bg max-w-mobile mx-auto relative shadow-lg">
+  <slot name="header" />
+  <main class={paddingBottom ? 'pb-20' : ''}>
+    <slot />
+  </main>
+  {showBottomNav && <slot name="bottom-nav" />}
+</div>
+
+<style is:global>
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+</style>

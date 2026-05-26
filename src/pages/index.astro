@@ -1,0 +1,207 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageShell from '../components/PageShell.astro';
+import BottomNav from '../components/BottomNav.astro';
+import ProductCard from '../components/ProductCard.astro';
+import Toast from '../components/Toast.astro';
+
+const title = 'Hamzah Quran Store';
+const description = 'Al Quran Custom berkualitas - Pesan Quran custom dengan desain impianmu';
+---
+
+<BaseLayout {title} {description}>
+  <PageShell>
+    <Fragment slot="header">
+      <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div class="flex items-center justify-between px-4 h-14">
+          <h1 class="font-display text-lg font-bold text-brand">Hamzah Quran</h1>
+          <a href="/cart" class="relative p-2 -mr-2">
+            <svg class="w-6 h-6 text-text-primary" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+            </svg>
+            <span data-cart-count class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden"></span>
+          </a>
+        </div>
+        <div class="px-4 pb-3">
+          <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              type="text"
+              id="search-input"
+              placeholder="Cari Al Quran..."
+              class="w-full pl-10 pr-4 py-2.5 bg-bg rounded-lg text-sm text-text-primary placeholder-text-secondary outline-none focus:ring-2 focus:ring-brand/30 border border-transparent focus:border-brand transition-all"
+            />
+          </div>
+        </div>
+      </header>
+    </Fragment>
+
+    <div class="px-4 pt-4">
+      <div class="bg-gradient-to-r from-brand to-blue-700 rounded-xl p-4 mb-4 text-white">
+        <p class="font-display text-lg font-bold">Al Quran Custom</p>
+        <p class="text-sm text-white/80 mt-1">Buat Quran impianmu dengan desain favorit</p>
+      </div>
+
+      <div id="product-grid" class="grid grid-cols-2 gap-3">
+        {Array.from({ length: 6 }).map(() => (
+          <div class="bg-card rounded-lg overflow-hidden shadow-sm border border-gray-100 animate-pulse">
+            <div class="aspect-square bg-gray-200"></div>
+            <div class="p-2.5 space-y-2">
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div id="load-more-trigger" class="h-10"></div>
+    </div>
+
+    <Fragment slot="bottom-nav">
+      <BottomNav active="home" />
+    </Fragment>
+  </PageShell>
+  <Toast />
+</BaseLayout>
+
+<script>
+  import { getProducts, searchProducts, addToCart, type ScalevProduct } from '../lib/scalev';
+  import { getGuestToken, setGuestToken, incrementCartCount, refreshCartBadge } from '../lib/store';
+
+  let currentPage = 1;
+  let loading = false;
+  let hasMore = true;
+  let currentQuery = '';
+
+  const grid = document.getElementById('product-grid')!;
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const loadTrigger = document.getElementById('load-more-trigger')!;
+
+  let searchTimer: ReturnType<typeof setTimeout>;
+
+  searchInput.addEventListener('input', () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(async () => {
+      currentQuery = searchInput.value.trim();
+      currentPage = 1;
+      hasMore = true;
+      grid.innerHTML = '';
+      await loadProducts(true);
+    }, 400);
+  });
+
+  async function loadProducts(replace = false) {
+    if (loading || !hasMore) return;
+    loading = true;
+
+    try {
+      let result;
+      if (currentQuery) {
+        result = await searchProducts(currentQuery, currentPage);
+      } else {
+        result = await getProducts(currentPage);
+      }
+
+      if (replace) {
+        grid.innerHTML = '';
+      }
+
+      if (result.data.length === 0 && currentPage === 1) {
+        grid.innerHTML = '<div class="col-span-2 text-center py-12 text-text-secondary"><p>Produk tidak ditemukan</p></div>';
+        hasMore = false;
+        return;
+      }
+
+      result.data.forEach((product: ScalevProduct) => {
+        const card = document.createElement('div');
+        card.innerHTML = createProductHTML(product);
+        card.querySelector('[data-add-cart]')?.addEventListener('click', async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          await handleAddToCart(product);
+        });
+        card.querySelector('a')?.addEventListener('click', (e) => {
+          if ((e.target as HTMLElement).closest('[data-add-cart]')) {
+            e.preventDefault();
+          }
+        });
+        grid.appendChild(card);
+      });
+
+      hasMore = result.page * result.per_page < result.total;
+      currentPage++;
+    } catch (err) {
+      (window as any).showToast?.({ message: 'Gagal memuat produk', type: 'error' });
+      if (replace) {
+        grid.innerHTML = `<div class="col-span-2 text-center py-12">
+          <p class="text-text-secondary mb-3">Gagal memuat produk</p>
+          <button onclick="location.reload()" class="px-4 py-2 bg-brand text-white rounded-lg text-sm">Coba Lagi</button>
+        </div>`;
+      }
+    } finally {
+      loading = false;
+    }
+  }
+
+  function createProductHTML(product: ScalevProduct): string {
+    const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.price);
+    const originalPrice = product.original_price && product.original_price > product.price
+      ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.original_price)
+      : '';
+    return `
+      <div class="bg-card rounded-lg overflow-hidden shadow-sm border border-gray-100">
+        <a href="/produk/${product.slug}" class="block relative">
+          <div class="aspect-square bg-gray-100 overflow-hidden">
+            <img src="${product.image_url || '/img/placeholder.svg'}" alt="${product.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+          </div>
+          <button data-add-cart class="absolute bottom-2 right-2 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center shadow-lg hover:bg-brand-dark transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+          </button>
+        </a>
+        <div class="p-2.5">
+          <a href="/produk/${product.slug}">
+            <h3 class="text-sm font-medium text-text-primary line-clamp-2 leading-tight min-h-[2.5em]">${product.name}</h3>
+          </a>
+          <div class="mt-1.5 flex items-baseline gap-1">
+            <span class="text-sm font-bold text-brand">${price}</span>
+            ${originalPrice ? `<span class="text-xs text-text-secondary line-through">${originalPrice}</span>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function handleAddToCart(product: ScalevProduct) {
+    let guestToken = getGuestToken();
+    if (!guestToken) {
+      guestToken = crypto.randomUUID();
+      setGuestToken(guestToken);
+    }
+
+    try {
+      await addToCart(product.id, 1, guestToken, product.variants?.[0]?.id);
+      incrementCartCount();
+      (window as any).showToast?.({ message: `${product.name} ditambahkan ke keranjang`, type: 'success' });
+    } catch (err) {
+      (window as any).showToast?.({ message: 'Gagal menambahkan produk', type: 'error' });
+    }
+  }
+
+  refreshCartBadge();
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        loadProducts();
+      }
+    },
+    { rootMargin: '200px' }
+  );
+  observer.observe(loadTrigger);
+
+  loadProducts(true);
+</script>

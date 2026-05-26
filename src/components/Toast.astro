@@ -1,0 +1,58 @@
+---
+export interface Props {
+  id?: string;
+}
+
+const { id = 'toast-container' } = Astro.props;
+---
+
+<div id={id} class="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-mobile px-4 z-[100] flex flex-col gap-2 pointer-events-none">
+</div>
+
+<script>
+  interface ToastOptions {
+    message: string;
+    type?: 'success' | 'error' | 'info';
+    duration?: number;
+  }
+
+  function showToast({ message, type = 'info', duration = 3000 }: ToastOptions): void {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const colors = {
+      success: 'bg-green-500 text-white',
+      error: 'bg-red-500 text-white',
+      info: 'bg-brand text-white',
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `pointer-events-auto ${colors[type]} px-4 py-3 rounded-lg shadow-lg text-sm font-medium animate-slide-down flex items-center gap-2`;
+    toast.innerHTML = `
+      <span class="flex-1">${message}</span>
+      <button class="text-white/80 hover:text-white" onclick="this.parentElement.remove()">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    `;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(-10px)';
+      toast.style.transition = 'all 300ms ease';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  (window as any).showToast = showToast;
+</script>
+
+<style is:global>
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-down {
+    animation: slide-down 300ms ease forwards;
+  }
+</style>

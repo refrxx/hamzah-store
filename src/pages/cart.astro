@@ -1,0 +1,201 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageShell from '../components/PageShell.astro';
+import BottomNav from '../components/BottomNav.astro';
+import CartItem from '../components/CartItem.astro';
+import Toast from '../components/Toast.astro';
+
+const title = 'Keranjang Belanja | Hamzah Quran';
+---
+
+<BaseLayout {title}>
+  <PageShell>
+    <Fragment slot="header">
+      <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div class="flex items-center h-14 px-4">
+          <a href="/" class="p-2 -ml-2" aria-label="Kembali">
+            <svg class="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </a>
+          <span class="ml-2 text-sm font-medium text-text-primary">Keranjang</span>
+        </div>
+      </header>
+    </Fragment>
+
+    <div id="cart-skeleton" class="p-4 space-y-3">
+      {Array.from({ length: 3 }).map(() => (
+        <div class="flex gap-3 bg-card p-3 rounded-lg border border-gray-100 animate-pulse">
+          <div class="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0"></div>
+          <div class="flex-1 space-y-2">
+            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div class="h-3 bg-gray-200 rounded w-1/4"></div>
+            <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div id="cart-empty" class="hidden text-center py-20 px-4">
+      <svg class="w-20 h-20 mx-auto text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
+      </svg>
+      <p class="text-text-secondary mt-4">Keranjang belanja kosong</p>
+      <a href="/" class="inline-block mt-4 px-6 py-2.5 bg-brand text-white rounded-lg text-sm font-medium">Belanja Sekarang</a>
+    </div>
+
+    <div id="cart-content" class="hidden p-4 space-y-3"></div>
+
+    <div id="cart-summary" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-mobile bg-white border-t border-gray-200 p-4 z-40 safe-area-bottom">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm text-text-secondary">Subtotal</span>
+        <span id="cart-subtotal" class="text-lg font-bold text-brand">Rp 0</span>
+      </div>
+      <button id="btn-checkout" class="w-full py-3 bg-brand text-white font-semibold rounded-lg text-sm hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+        Checkout
+      </button>
+    </div>
+
+    <Fragment slot="bottom-nav">
+      <BottomNav active="cart" />
+    </Fragment>
+  </PageShell>
+  <Toast />
+</BaseLayout>
+
+<script>
+  import { getGuestCart, updateCartItem, removeCartItem, type ScalevCartItem } from '../lib/scalev';
+  import { getGuestToken, setCartCount, refreshCartBadge } from '../lib/store';
+
+  const skeleton = document.getElementById('cart-skeleton')!;
+  const emptyEl = document.getElementById('cart-empty')!;
+  const content = document.getElementById('cart-content')!;
+  const summary = document.getElementById('cart-summary')!;
+  const subtotalEl = document.getElementById('cart-subtotal')!;
+  const checkoutBtn = document.getElementById('btn-checkout')!;
+
+  let items: ScalevCartItem[] = [];
+
+  async function loadCart() {
+    const token = getGuestToken();
+    if (!token) {
+      skeleton.classList.add('hidden');
+      emptyEl.classList.remove('hidden');
+      return;
+    }
+
+    try {
+      const cart = await getGuestCart(token);
+      items = cart.items;
+      setCartCount(items.reduce((sum, i) => sum + i.quantity, 0));
+
+      skeleton.classList.add('hidden');
+
+      if (items.length === 0) {
+        emptyEl.classList.remove('hidden');
+        summary.classList.add('hidden');
+        return;
+      }
+
+      renderItems();
+      updateSummary();
+      content.classList.remove('hidden');
+      summary.classList.remove('hidden');
+    } catch {
+      skeleton.innerHTML = `<div class="text-center py-20">
+        <p class="text-text-secondary mb-3">Gagal memuat keranjang</p>
+        <button onclick="location.reload()" class="px-4 py-2 bg-brand text-white rounded-lg text-sm">Coba Lagi</button>
+      </div>`;
+    }
+  }
+
+  function renderItems() {
+    content.innerHTML = '';
+    items.forEach((item) => {
+      const div = document.createElement('div');
+      div.className = 'flex gap-3 bg-card p-3 rounded-lg border border-gray-100';
+      div.dataset.cartItem = item.id;
+      div.innerHTML = `
+        <img src="${item.image_url || '/img/placeholder.svg'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-gray-100" loading="lazy" />
+        <div class="flex-1 min-w-0">
+          <h3 class="text-sm font-medium text-text-primary line-clamp-2">${item.name}</h3>
+          ${item.variant_name ? `<p class="text-xs text-text-secondary mt-0.5">${item.variant_name}</p>` : ''}
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-sm font-bold text-brand">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price)}</span>
+            <div class="flex items-center gap-2">
+              <button data-cart-dec="${item.id}" class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-text-secondary hover:border-brand hover:text-brand transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+              </button>
+              <span class="w-6 text-center text-sm font-medium" data-cart-qty="${item.id}">${item.quantity}</span>
+              <button data-cart-inc="${item.id}" class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-text-secondary hover:border-brand hover:text-brand transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <button data-cart-remove="${item.id}" class="flex-shrink-0 self-start text-text-secondary hover:text-red-500 transition-colors p-1" aria-label="Hapus item">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+          </svg>
+        </button>
+      `;
+
+      div.querySelector('[data-cart-inc]')?.addEventListener('click', () => handleUpdate(item.id, item.quantity + 1));
+      div.querySelector('[data-cart-dec]')?.addEventListener('click', () => {
+        if (item.quantity > 1) handleUpdate(item.id, item.quantity - 1);
+      });
+      div.querySelector('[data-cart-remove]')?.addEventListener('click', () => handleRemove(item.id));
+
+      content.appendChild(div);
+    });
+  }
+
+  function updateSummary() {
+    const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
+    subtotalEl.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(subtotal);
+  }
+
+  async function handleUpdate(itemId: string, qty: number) {
+    const token = getGuestToken();
+    if (!token) return;
+
+    try {
+      const cart = await updateCartItem(itemId, qty, token);
+      items = cart.items;
+      renderItems();
+      updateSummary();
+      setCartCount(items.reduce((sum, i) => sum + i.quantity, 0));
+    } catch {
+      (window as any).showToast?.({ message: 'Gagal mengupdate keranjang', type: 'error' });
+    }
+  }
+
+  async function handleRemove(itemId: string) {
+    const token = getGuestToken();
+    if (!token) return;
+
+    try {
+      const cart = await removeCartItem(itemId, token);
+      items = cart.items;
+      if (items.length === 0) {
+        content.classList.add('hidden');
+        summary.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+      } else {
+        renderItems();
+        updateSummary();
+      }
+      setCartCount(items.reduce((sum, i) => sum + i.quantity, 0));
+      (window as any).showToast?.({ message: 'Item dihapus dari keranjang', type: 'success' });
+    } catch {
+      (window as any).showToast?.({ message: 'Gagal menghapus item', type: 'error' });
+    }
+  }
+
+  checkoutBtn.addEventListener('click', () => {
+    window.location.href = '/checkout';
+  });
+
+  refreshCartBadge();
+  loadCart();
+</script>

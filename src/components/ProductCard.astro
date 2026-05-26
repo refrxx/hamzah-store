@@ -1,0 +1,50 @@
+---
+export interface Props {
+  name: string;
+  price: number;
+  image: string;
+  slug: string;
+  originalPrice?: number;
+}
+
+const { name, price, image, slug, originalPrice } = Astro.props;
+---
+
+<div class="bg-card rounded-lg overflow-hidden shadow-sm border border-gray-100">
+  <a href={`/produk/${slug}`} class="block">
+    <div class="aspect-square bg-gray-100 overflow-hidden">
+      <img
+        src={image || '/img/placeholder.svg'}
+        alt={name}
+        class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+        loading="lazy"
+      />
+    </div>
+  </a>
+  <div class="p-2.5">
+    <a href={`/produk/${slug}`}>
+      <h3 class="text-sm font-medium text-text-primary line-clamp-2 leading-tight min-h-[2.5em]">
+        {name}
+      </h3>
+    </a>
+    <div class="mt-1.5 flex items-baseline gap-1">
+      <span class="text-sm font-bold text-brand">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(price)}</span>
+      {originalPrice && originalPrice > price && (
+        <span class="text-xs text-text-secondary line-through">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(originalPrice)}</span>
+      )}
+    </div>
+  </div>
+</div>
+
+<script>
+  // ProductCard interaction handled by parent page
+</script>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

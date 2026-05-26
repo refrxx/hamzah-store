@@ -1,0 +1,223 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageShell from '../../components/PageShell.astro';
+import BottomNav from '../../components/BottomNav.astro';
+import Toast from '../../components/Toast.astro';
+
+export const prerender = false;
+
+const { slug } = Astro.params;
+const title = `Loading... | Hamzah Quran`;
+---
+
+<BaseLayout {title}>
+  <PageShell>
+    <Fragment slot="header">
+      <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
+        <div class="flex items-center h-14 px-4">
+          <a href="/" class="p-2 -ml-2" aria-label="Kembali">
+            <svg class="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </a>
+          <span class="ml-2 text-sm font-medium text-text-primary">Detail Produk</span>
+        </div>
+      </header>
+    </Fragment>
+
+    <div id="product-detail" class="animate-pulse">
+      <div class="aspect-square bg-gray-200"></div>
+      <div class="p-4 space-y-4">
+        <div class="h-6 bg-gray-200 rounded w-3/4"></div>
+        <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+        <div class="space-y-2">
+          <div class="h-4 bg-gray-200 rounded w-full"></div>
+          <div class="h-4 bg-gray-200 rounded w-full"></div>
+          <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="product-content" class="hidden">
+      <div class="relative">
+        <div id="product-image" class="aspect-square bg-gray-100 overflow-hidden">
+          <img id="main-image" class="w-full h-full object-cover" src="" alt="" />
+        </div>
+      </div>
+
+      <div class="px-4 pt-4 pb-24">
+        <h1 id="product-name" class="text-lg font-semibold text-text-primary"></h1>
+        <p id="product-price" class="text-2xl font-bold text-brand mt-2"></p>
+
+        <div id="variant-section" class="mt-4 hidden">
+          <p class="text-sm font-medium text-text-primary mb-2">Varian:</p>
+          <div id="variant-list" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="mt-4 flex items-center gap-3">
+          <span class="text-sm font-medium text-text-primary">Jumlah:</span>
+          <div class="flex items-center gap-2">
+            <button id="qty-dec" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-text-secondary hover:border-brand hover:text-brand transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+              </svg>
+            </button>
+            <span id="qty-display" class="w-8 text-center font-medium">1</span>
+            <button id="qty-inc" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-text-secondary hover:border-brand hover:text-brand transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div id="shipping-info" class="mt-4 flex flex-wrap gap-2"></div>
+
+        <div class="mt-4">
+          <h3 class="text-sm font-medium text-text-primary mb-2">Deskripsi</h3>
+          <div id="product-description" class="text-sm text-text-secondary leading-relaxed"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sticky-bottom" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-mobile bg-white border-t border-gray-200 p-3 z-50 hidden safe-area-bottom">
+      <div class="flex gap-2">
+        <button id="btn-add-cart" class="flex-1 py-3 border-2 border-brand text-brand font-semibold rounded-lg text-sm hover:bg-brand/5 transition-colors">
+          Masukkan Keranjang
+        </button>
+        <button id="btn-buy-now" class="flex-1 py-3 bg-brand text-white font-semibold rounded-lg text-sm hover:bg-brand-dark transition-colors">
+          Beli Langsung
+        </button>
+      </div>
+    </div>
+
+    <Fragment slot="bottom-nav">
+      <BottomNav />
+    </Fragment>
+  </PageShell>
+  <Toast />
+</BaseLayout>
+
+<script>
+  import { getProductDetail, addToCart, type ScalevProduct } from '../../lib/scalev';
+  import { getGuestToken, setGuestToken, incrementCartCount, refreshCartBadge } from '../../lib/store';
+
+  const slug = window.location.pathname.split('/').pop()!;
+  let product: ScalevProduct | null = null;
+  let quantity = 1;
+  let selectedVariantId: string | undefined;
+
+  const skeleton = document.getElementById('product-detail')!;
+  const content = document.getElementById('product-content')!;
+  const stickyBottom = document.getElementById('sticky-bottom')!;
+
+  async function init() {
+    try {
+      product = await getProductDetail(slug);
+      renderProduct();
+      skeleton.classList.add('hidden');
+      content.classList.remove('hidden');
+      stickyBottom.classList.remove('hidden');
+    } catch (err) {
+      skeleton.innerHTML = `<div class="text-center py-20 px-4">
+        <p class="text-text-secondary mb-3">Gagal memuat produk</p>
+        <button onclick="location.reload()" class="px-4 py-2 bg-brand text-white rounded-lg text-sm">Coba Lagi</button>
+      </div>`;
+    }
+  }
+
+  function renderProduct() {
+    if (!product) return;
+
+    const img = document.getElementById('main-image')!;
+    img.src = product.image_url || '/img/placeholder.svg';
+    img.alt = product.name;
+
+    document.getElementById('product-name')!.textContent = product.name;
+    document.getElementById('product-price')!.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.price);
+
+    document.title = `${product.name} | Hamzah Quran`;
+
+    if (product.description) {
+      document.getElementById('product-description')!.innerHTML = product.description;
+    }
+
+    if (product.shipping_info) {
+      const info = document.getElementById('shipping-info')!;
+      if (product.shipping_info.free_shipping) {
+        info.innerHTML += `<span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">Gratis Ongkir</span>`;
+      }
+      if (product.shipping_info.cod) {
+        info.innerHTML += `<span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">COD</span>`;
+      }
+      if (product.shipping_info.warranty) {
+        info.innerHTML += `<span class="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded">Garansi</span>`;
+      }
+    }
+
+    if (product.variants && product.variants.length > 0) {
+      const variantSection = document.getElementById('variant-section')!;
+      const variantList = document.getElementById('variant-list')!;
+      variantSection.classList.remove('hidden');
+
+      product.variants.forEach((v) => {
+        const pill = document.createElement('button');
+        pill.className = 'px-3 py-1.5 text-sm rounded-full border border-gray-300 text-text-primary hover:border-brand hover:text-brand transition-colors';
+        pill.textContent = v.name;
+        pill.dataset.variantId = v.id;
+        pill.addEventListener('click', () => {
+          variantList.querySelectorAll('button').forEach((b) => {
+            b.className = 'px-3 py-1.5 text-sm rounded-full border border-gray-300 text-text-primary hover:border-brand hover:text-brand transition-colors';
+          });
+          pill.className = 'px-3 py-1.5 text-sm rounded-full bg-brand text-white border-brand transition-colors';
+          selectedVariantId = v.id;
+          if (v.price) {
+            document.getElementById('product-price')!.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v.price);
+          }
+        });
+        variantList.appendChild(pill);
+      });
+
+      selectedVariantId = product.variants[0].id;
+      variantList.firstChild && (variantList.firstChild as HTMLElement).click();
+    }
+  }
+
+  document.getElementById('qty-inc')!.addEventListener('click', () => {
+    quantity++;
+    document.getElementById('qty-display')!.textContent = String(quantity);
+  });
+
+  document.getElementById('qty-dec')!.addEventListener('click', () => {
+    if (quantity > 1) {
+      quantity--;
+      document.getElementById('qty-display')!.textContent = String(quantity);
+    }
+  });
+
+  async function handleAddToCart() {
+    if (!product) return;
+    let token = getGuestToken();
+    if (!token) {
+      token = crypto.randomUUID();
+      setGuestToken(token);
+    }
+    try {
+      await addToCart(product.id, quantity, token, selectedVariantId);
+      incrementCartCount(quantity);
+      (window as any).showToast?.({ message: `${product.name} ditambahkan ke keranjang`, type: 'success' });
+    } catch {
+      (window as any).showToast?.({ message: 'Gagal menambahkan produk', type: 'error' });
+    }
+  }
+
+  document.getElementById('btn-add-cart')!.addEventListener('click', handleAddToCart);
+
+  document.getElementById('btn-buy-now')!.addEventListener('click', async () => {
+    await handleAddToCart();
+    window.location.href = '/cart';
+  });
+
+  refreshCartBadge();
+  init();
+</script>
