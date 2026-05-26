@@ -119,7 +119,7 @@ import BottomNav from '../components/BottomNav.astro';
     const container = $('checkout-items');
     container.innerHTML = '';
     cartItems.forEach((item: any) => {
-      const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.png';
+      const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.svg';
       const name = item.product?.name || 'Produk';
       container.innerHTML += `
         <div class="flex items-center gap-3">

@@ -59,8 +59,8 @@ import BottomNav from '../components/BottomNav.astro';
   let hasMore = true;
 
   function renderCard(item: any) {
-    const img = item.images?.[0]?.url || '/placeholder.png';
-    const price = item.min_price ?? item.price ?? 0;
+    const img = item.images?.[0]?.url || '/placeholder.svg';
+    const price = parseFloat(item.price_range?.min ?? item.price_range?.max ?? item.min_price ?? item.price ?? '0');
     const slug = item.slug || '';
     return `
       <div class="bg-white rounded-lg overflow-hidden shadow-sm">
@@ -68,7 +68,7 @@ import BottomNav from '../components/BottomNav.astro';
           <div class="aspect-square overflow-hidden bg-gray-100">
             <img src="${img}" alt="${item.name}" loading="lazy"
               class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-              onerror="this.src='/placeholder.png'" />
+              onerror="this.src='/placeholder.svg'" />
           </div>
         </a>
         <div class="p-2">

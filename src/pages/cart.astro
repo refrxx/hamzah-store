@@ -78,13 +78,13 @@ import BottomNav from '../components/BottomNav.astro';
   function renderItems(items: any[]) {
     const container = document.getElementById('cart-items')!;
     container.innerHTML = items.map((item: any) => {
-      const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.png';
+      const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.svg';
       const name = item.product?.name || 'Produk';
       const variant = item.variant?.name || '';
       const price = item.price || item.variant?.price || 0;
       return `
         <div class="bg-white rounded-lg p-3 flex gap-3" data-item-id="${item.id}">
-          <img src="${img}" alt="${name}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" onerror="this.src='/placeholder.png'" />
+          <img src="${img}" alt="${name}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" onerror="this.src='/placeholder.svg'" />
           <div class="flex-1 min-w-0">
             <p class="text-xs font-medium line-clamp-2 mb-0.5" style="color:var(--text-primary)">${name}</p>
             ${variant ? `<p class="text-xs mb-1" style="color:var(--text-secondary)">${variant}</p>` : ''}

@@ -99,7 +99,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
         const firstVariant = product.variants?.[0];
         selectedVariantId = firstVariant?.id || null;
-        const price = firstVariant?.price ?? product.min_price ?? product.price ?? 0;
+        const price = parseFloat(firstVariant?.price ?? product.price_range?.min ?? product.price_range?.max ?? product.min_price ?? product.price ?? '0');
         document.getElementById('price-skeleton')?.classList.add('hidden');
         const priceEl = document.getElementById('product-price')!;
         priceEl.textContent = formatRupiah(price);
