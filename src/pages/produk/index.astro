@@ -114,14 +114,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         if (images.length) {
           const loadingEl = document.getElementById('gallery-loading')!;
           const mainImg = document.getElementById('main-image') as HTMLImageElement;
-          mainImg.src = images[0].url;
+          mainImg.src = images[0];
           mainImg.onload = () => { loadingEl.classList.add('hidden'); mainImg.classList.remove('hidden'); };
-          mainImg.onerror = () => { loadingEl.classList.add('hidden'); mainImg.classList.remove('hidden'); };
+          mainImg.onerror = () => { loadingEl.classList.add('hidden'); mainImg.classList.remove('hidden'); mainImg.src = '/placeholder.svg'; };
 
           const thumbsEl = document.getElementById('thumbnails')!;
-          thumbsEl.innerHTML = images.map((img: any, i: number) => `
-            <button class="thumb flex-shrink-0 w-14 h-14 rounded border-2 overflow-hidden ${i === 0 ? 'border-blue-700' : 'border-transparent'}" data-src="${img.url}" data-idx="${i}">
-              <img src="${img.url}" class="w-full h-full object-cover" loading="lazy" />
+          thumbsEl.innerHTML = images.map((img: string, i: number) => `
+            <button class="thumb flex-shrink-0 w-14 h-14 rounded border-2 overflow-hidden ${i === 0 ? 'border-blue-700' : 'border-transparent'}" data-src="${img}" data-idx="${i}">
+              <img src="${img}" class="w-full h-full object-cover" loading="lazy" onerror="this.src='/placeholder.svg'" />
             </button>
           `).join('');
 
