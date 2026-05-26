@@ -107,9 +107,9 @@ import BottomNav from '../components/BottomNav.astro';
 
     try {
       const provinces = await getProvinces();
-      provinces.forEach((p: any) => {
+      (provinces.data || []).forEach((p: any) => {
         const opt = document.createElement('option');
-        opt.value = p.id; opt.textContent = p.name;
+        opt.value = p.province_id; opt.textContent = p.province_name;
         provinceEl.appendChild(opt);
       });
     } catch {}
@@ -153,9 +153,9 @@ import BottomNav from '../components/BottomNav.astro';
     try {
       const cities = await getCities(parseInt(provinceEl.value));
       cityEl.disabled = false;
-      cities.forEach((c: any) => {
+      (cities.data || []).forEach((c: any) => {
         const opt = document.createElement('option');
-        opt.value = c.id; opt.textContent = c.name;
+        opt.value = c.city_id; opt.textContent = c.city_name;
         cityEl.appendChild(opt);
       });
     } catch {}
@@ -168,9 +168,9 @@ import BottomNav from '../components/BottomNav.astro';
     try {
       const subdistricts = await getSubdistricts(parseInt(cityEl.value));
       subdistrictEl.disabled = false;
-      subdistricts.forEach((s: any) => {
+      (subdistricts.data || []).forEach((s: any) => {
         const opt = document.createElement('option');
-        opt.value = s.id; opt.textContent = s.name;
+        opt.value = s.id; opt.textContent = s.subdistrict_name;
         subdistrictEl.appendChild(opt);
       });
     } catch {}
