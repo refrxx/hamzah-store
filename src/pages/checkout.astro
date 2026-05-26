@@ -1,345 +1,259 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageShell from '../components/PageShell.astro';
 import BottomNav from '../components/BottomNav.astro';
-import Toast from '../components/Toast.astro';
-
-const title = 'Checkout | Hamzah Quran';
 ---
+<BaseLayout title="Checkout - Hamzah Quran">
+  <header class="sticky top-0 z-50 bg-white border-b px-4 py-3" style="border-color:var(--border)">
+    <a href="/cart" onclick="history.back();return false;" class="flex items-center gap-2">
+      <span class="material-symbols-outlined" style="color:var(--text-primary)">arrow_back</span>
+      <h1 class="font-bold text-base" style="color:var(--text-primary)">Checkout</h1>
+    </a>
+  </header>
 
-<BaseLayout {title}>
-  <PageShell showBottomNav={false}>
-    <Fragment slot="header">
-      <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
-        <div class="flex items-center h-14 px-4">
-          <a href="/cart" class="p-2 -ml-2" aria-label="Kembali">
-            <svg class="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </a>
-          <span class="ml-2 text-sm font-medium text-text-primary">Checkout</span>
-        </div>
-      </header>
-    </Fragment>
-
-    <div class="p-4 space-y-4 pb-32">
-      <div class="bg-card rounded-lg p-4 border border-gray-100">
-        <h3 class="text-sm font-semibold text-text-primary mb-3">Alamat Pengiriman</h3>
-        <div class="space-y-3">
-          <input id="field-name" type="text" placeholder="Nama Lengkap" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all" />
-          <input id="field-phone" type="tel" placeholder="Nomor HP" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all" />
-          <input id="field-email" type="email" placeholder="Email" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all" />
-          <textarea id="field-address" placeholder="Alamat Lengkap" rows="3" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all resize-none"></textarea>
-          <select id="field-province" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all">
-            <option value="">Pilih Provinsi</option>
-          </select>
-          <select id="field-city" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all" disabled>
-            <option value="">Pilih Kota</option>
-          </select>
-          <select id="field-subdistrict" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all" disabled>
-            <option value="">Pilih Kecamatan</option>
-          </select>
-          <input id="field-postal" type="text" placeholder="Kode Pos" class="w-full px-3 py-2.5 bg-bg rounded-lg text-sm border border-gray-200 focus:border-brand focus:ring-2 focus:ring-brand/30 outline-none transition-all" />
-        </div>
-      </div>
-
-      <div class="bg-card rounded-lg p-4 border border-gray-100">
-        <h3 class="text-sm font-semibold text-text-primary mb-3">Metode Pengiriman</h3>
-        <button id="btn-check-ongkir" class="w-full py-2.5 bg-accent text-text-primary font-semibold rounded-lg text-sm hover:bg-accent-dark transition-colors">
-          Cek Ongkir
-        </button>
-        <div id="shipping-options" class="mt-3 space-y-2"></div>
-      </div>
-
-      <div class="bg-card rounded-lg p-4 border border-gray-100">
-        <h3 class="text-sm font-semibold text-text-primary mb-3">Metode Pembayaran</h3>
-        <div class="flex items-center gap-3 p-3 bg-bg rounded-lg">
-          <input type="radio" name="payment" value="transfer_bank" checked class="accent-brand" />
-          <span class="text-sm">Transfer Bank</span>
-        </div>
-      </div>
-
-      <div class="bg-card rounded-lg p-4 border border-gray-100">
-        <h3 class="text-sm font-semibold text-text-primary mb-3">Ringkasan Order</h3>
-        <div id="checkout-items" class="space-y-2"></div>
-        <div class="border-t border-gray-200 mt-3 pt-3 space-y-1">
-          <div class="flex justify-between text-sm">
-            <span class="text-text-secondary">Subtotal</span>
-            <span id="checkout-subtotal" class="font-medium">Rp 0</span>
-          </div>
-          <div class="flex justify-between text-sm">
-            <span class="text-text-secondary">Ongkir</span>
-            <span id="checkout-shipping" class="font-medium">Rp 0</span>
-          </div>
-          <div class="flex justify-between text-sm font-bold text-text-primary border-t border-gray-200 pt-2 mt-2">
-            <span>Total</span>
-            <span id="checkout-total" class="text-brand">Rp 0</span>
-          </div>
-        </div>
+  <div class="p-4 space-y-4 pb-32">
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">DATA PENERIMA</h3>
+      <div class="space-y-3">
+        <input id="field-name" type="text" placeholder="Nama Lengkap" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
+        <input id="field-phone" type="tel" placeholder="Nomor HP" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
+        <input id="field-email" type="email" placeholder="Email" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
       </div>
     </div>
 
-    <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-mobile bg-white border-t border-gray-200 p-4 z-50 safe-area-bottom">
-      <button id="btn-submit-order" class="w-full py-3 bg-brand text-white font-semibold rounded-lg text-sm hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-        Bayar Sekarang
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">ALAMAT PENGIRIMAN</h3>
+      <div class="space-y-3">
+        <textarea id="field-address" placeholder="Alamat Lengkap (jalan, gang, no. rumah)" rows="3" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all resize-none" style="border-color:var(--border);color:var(--text-primary)"></textarea>
+        <select id="field-province" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)">
+          <option value="">Pilih Provinsi</option>
+        </select>
+        <select id="field-city" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" disabled>
+          <option value="">Pilih Kota</option>
+        </select>
+        <select id="field-subdistrict" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" disabled>
+          <option value="">Pilih Kecamatan</option>
+        </select>
+        <input id="field-postal" type="text" placeholder="Kode Pos" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">METODE PENGIRIMAN</h3>
+      <button id="btn-check-ongkir" class="w-full py-2.5 rounded-lg font-semibold text-sm" style="background:var(--gold);color:#212121">
+        Cek Ongkir
       </button>
+      <div id="shipping-options" class="mt-3 space-y-2"></div>
     </div>
 
-    <Fragment slot="bottom-nav">
-      <BottomNav active="cart" />
-    </Fragment>
-  </PageShell>
-  <Toast />
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">METODE PEMBAYARAN</h3>
+      <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+        <input type="radio" name="payment" value="transfer_bank" checked class="accent-blue-700" />
+        <span class="text-sm">Transfer Bank</span>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">RINGKASAN ORDER</h3>
+      <div id="checkout-items" class="space-y-2"></div>
+      <div class="border-t mt-3 pt-3 space-y-1" style="border-color:var(--border)">
+        <div class="flex justify-between text-sm">
+          <span style="color:var(--text-secondary)">Subtotal</span>
+          <span id="checkout-subtotal" class="font-medium">Rp 0</span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span style="color:var(--text-secondary)">Ongkir</span>
+          <span id="checkout-shipping" class="font-medium">Rp 0</span>
+        </div>
+        <div class="flex justify-between text-sm font-bold pt-2 mt-2" style="border-top:1px solid var(--border)">
+          <span>Total</span>
+          <span id="checkout-total" style="color:var(--red)">Rp 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t p-4 z-50" style="border-color:var(--border)">
+    <button id="btn-submit-order" class="w-full py-3 rounded-lg font-bold text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed" style="background:var(--blue)">
+      Bayar Sekarang
+    </button>
+  </div>
+
+  <BottomNav active="cart" />
 </BaseLayout>
 
 <script>
-  import {
-    getGuestCart, getProvinces, getCities, getSubdistricts,
-    getShippingOptions, submitCheckout, type ScalevCartItem,
-    type ScalevLocation, type ScalevShippingOption
-  } from '../lib/scalev';
-  import { getGuestToken, removeGuestToken, refreshCartBadge } from '../lib/store';
+  import { getGuestCart, getProvinces, getCities, getSubdistricts, getShippingOptions, submitCheckout, formatRupiah } from '../lib/scalev';
 
-  interface FormData {
-    name: string;
-    phone: string;
-    email: string;
-    address: string;
-    provinceId: string;
-    cityId: string;
-    subdistrictId: string;
-    postalCode: string;
-  }
-
-  let cartItems: ScalevCartItem[] = [];
-  let provinces: ScalevLocation[] = [];
-  let cities: ScalevLocation[] = [];
-  let subdistricts: ScalevLocation[] = [];
-  let shippingOptions: ScalevShippingOption[] = [];
-  let selectedShipping: ScalevShippingOption | null = null;
-  let selectedShippingIndex = -1;
-  let formData: FormData = {
-    name: '', phone: '', email: '', address: '',
-    provinceId: '', cityId: '', subdistrictId: '', postalCode: '',
-  };
+  let cartItems: any[] = [];
+  let selectedShipping: any = null;
+  let formData: any = {};
 
   const provinceEl = document.getElementById('field-province') as HTMLSelectElement;
   const cityEl = document.getElementById('field-city') as HTMLSelectElement;
   const subdistrictEl = document.getElementById('field-subdistrict') as HTMLSelectElement;
-  const postalEl = document.getElementById('field-postal') as HTMLInputElement;
-  const checkoutItems = document.getElementById('checkout-items')!;
-  const subtotalEl = document.getElementById('checkout-subtotal')!;
-  const shippingEl = document.getElementById('checkout-shipping')!;
-  const totalEl = document.getElementById('checkout-total')!;
-  const btnCekOngkir = document.getElementById('btn-check-ongkir')!;
-  const shippingOptionsEl = document.getElementById('shipping-options')!;
-  const btnSubmit = document.getElementById('btn-submit-order')!;
 
-  function formatPrice(v: number) {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(v);
-  }
+  function $(id: string) { return document.getElementById(id)!; }
 
   async function init() {
-    const token = getGuestToken();
-    if (!token) { window.location.href = '/cart'; return; }
-
     try {
-      const cart = await getGuestCart(token);
-      cartItems = cart.items;
-      if (cartItems.length === 0) { window.location.href = '/cart'; return; }
+      const cart = await getGuestCart();
+      cartItems = cart.items || [];
+      if (!cartItems.length) { window.location.href = '/cart'; return; }
       renderItems();
     } catch {
-      (window as any).showToast?.({ message: 'Gagal memuat keranjang', type: 'error' });
+      window.location.href = '/cart';
     }
 
     try {
-      provinces = await getProvinces();
-      provinces.forEach((p) => {
+      const provinces = await getProvinces();
+      provinces.forEach((p: any) => {
         const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.name;
+        opt.value = p.id; opt.textContent = p.name;
         provinceEl.appendChild(opt);
       });
-    } catch {
-      (window as any).showToast?.({ message: 'Gagal memuat data lokasi', type: 'error' });
-    }
+    } catch {}
   }
 
   function renderItems() {
-    checkoutItems.innerHTML = '';
-    cartItems.forEach((item) => {
-      const div = document.createElement('div');
-      div.className = 'flex items-center gap-3';
-      div.innerHTML = `
-        <img src="${item.image_url || '/img/placeholder.svg'}" alt="${item.name}" class="w-12 h-12 object-cover rounded bg-gray-100" loading="lazy" />
-        <div class="flex-1 min-w-0">
-          <p class="text-sm text-text-primary line-clamp-1">${item.name}</p>
-          <p class="text-xs text-text-secondary">${item.quantity}x</p>
+    const container = $('checkout-items');
+    container.innerHTML = '';
+    cartItems.forEach((item: any) => {
+      const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.png';
+      const name = item.product?.name || 'Produk';
+      container.innerHTML += `
+        <div class="flex items-center gap-3">
+          <img src="${img}" class="w-12 h-12 object-cover rounded bg-gray-100" />
+          <div class="flex-1 min-w-0">
+            <p class="text-sm line-clamp-1" style="color:var(--text-primary)">${name}</p>
+            <p class="text-xs" style="color:var(--text-secondary)">${item.quantity}x</p>
+          </div>
+          <span class="text-sm font-medium">${formatRupiah(item.price * item.quantity)}</span>
         </div>
-        <span class="text-sm font-medium">${formatPrice(item.subtotal)}</span>
       `;
-      checkoutItems.appendChild(div);
     });
-    const subtotal = cartItems.reduce((s, i) => s + i.subtotal, 0);
-    subtotalEl.textContent = formatPrice(subtotal);
+    const subtotal = cartItems.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
+    $('checkout-subtotal').textContent = formatRupiah(subtotal);
     updateTotal();
   }
 
   function updateTotal() {
-    const subtotal = cartItems.reduce((s, i) => s + i.subtotal, 0);
+    const subtotal = cartItems.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
     const shipping = selectedShipping?.cost || 0;
-    shippingEl.textContent = formatPrice(shipping);
-    totalEl.textContent = formatPrice(subtotal + shipping);
+    $('checkout-shipping').textContent = formatRupiah(shipping);
+    $('checkout-total').textContent = formatRupiah(subtotal + shipping);
   }
 
   provinceEl.addEventListener('change', async () => {
-    formData.provinceId = provinceEl.value;
     cityEl.innerHTML = '<option value="">Pilih Kota</option>';
     cityEl.disabled = true;
     subdistrictEl.innerHTML = '<option value="">Pilih Kecamatan</option>';
     subdistrictEl.disabled = true;
-    if (!formData.provinceId) return;
-
+    if (!provinceEl.value) return;
     try {
-      cities = await getCities(formData.provinceId);
+      const cities = await getCities(parseInt(provinceEl.value));
       cityEl.disabled = false;
-      cities.forEach((c) => {
+      cities.forEach((c: any) => {
         const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name;
+        opt.value = c.id; opt.textContent = c.name;
         cityEl.appendChild(opt);
       });
-    } catch {
-      (window as any).showToast?.({ message: 'Gagal memuat data kota', type: 'error' });
-    }
+    } catch {}
   });
 
   cityEl.addEventListener('change', async () => {
-    formData.cityId = cityEl.value;
     subdistrictEl.innerHTML = '<option value="">Pilih Kecamatan</option>';
     subdistrictEl.disabled = true;
-    if (!formData.cityId) return;
-
+    if (!cityEl.value) return;
     try {
-      subdistricts = await getSubdistricts(formData.cityId);
+      const subdistricts = await getSubdistricts(parseInt(cityEl.value));
       subdistrictEl.disabled = false;
-      subdistricts.forEach((s) => {
+      subdistricts.forEach((s: any) => {
         const opt = document.createElement('option');
-        opt.value = s.id;
-        opt.textContent = s.name;
+        opt.value = s.id; opt.textContent = s.name;
         subdistrictEl.appendChild(opt);
       });
-    } catch {
-      (window as any).showToast?.({ message: 'Gagal memuat data kecamatan', type: 'error' });
-    }
+    } catch {}
   });
 
-  subdistrictEl.addEventListener('change', () => {
-    formData.subdistrictId = subdistrictEl.value;
-  });
+  $('btn-check-ongkir').addEventListener('click', async () => {
+    formData = {
+      name: ($('field-name') as HTMLInputElement).value,
+      phone: ($('field-phone') as HTMLInputElement).value,
+      email: ($('field-email') as HTMLInputElement).value,
+      address: ($('field-address') as HTMLTextAreaElement).value,
+      province_id: provinceEl.value,
+      city_id: cityEl.value,
+      subdistrict_id: subdistrictEl.value,
+      postal_code: ($('field-postal') as HTMLInputElement).value,
+    };
 
-  postalEl.addEventListener('input', () => {
-    formData.postalCode = postalEl.value;
-  });
-
-  btnCekOngkir.addEventListener('click', async () => {
-    formData.name = (document.getElementById('field-name') as HTMLInputElement).value;
-    formData.phone = (document.getElementById('field-phone') as HTMLInputElement).value;
-    formData.email = (document.getElementById('field-email') as HTMLInputElement).value;
-    formData.address = (document.getElementById('field-address') as HTMLTextAreaElement).value;
-
-    if (!formData.name || !formData.phone || !formData.address || !formData.provinceId || !formData.cityId || !formData.subdistrictId) {
-      (window as any).showToast?.({ message: 'Lengkapi alamat pengiriman terlebih dahulu', type: 'error' });
+    if (!formData.name || !formData.phone || !formData.address || !formData.province_id || !formData.city_id || !formData.subdistrict_id) {
+      alert('Lengkapi alamat pengiriman terlebih dahulu');
       return;
     }
 
-    const token = getGuestToken();
-    if (!token) return;
-
-    btnCekOngkir.disabled = true;
-    btnCekOngkir.textContent = 'Memuat...';
+    const btn = $('btn-check-ongkir') as HTMLButtonElement;
+    btn.disabled = true; btn.textContent = 'Memuat...';
 
     try {
-      shippingOptions = await getShippingOptions(token, {
-        address: formData.address,
-        province_id: formData.provinceId,
-        city_id: formData.cityId,
-        subdistrict_id: formData.subdistrictId,
-        postal_code: formData.postalCode,
-      });
-
-      shippingOptionsEl.innerHTML = '';
-      selectedShipping = null;
-      selectedShippingIndex = -1;
-
-      shippingOptions.forEach((opt, idx) => {
+      const options = await getShippingOptions(formData);
+      const container = $('shipping-options');
+      container.innerHTML = '';
+      options.forEach((opt: any, idx: number) => {
         const div = document.createElement('div');
-        div.className = 'flex items-center gap-3 p-3 bg-bg rounded-lg cursor-pointer hover:bg-gray-100 transition-colors';
-        div.dataset.index = String(idx);
+        div.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors';
         div.innerHTML = `
-          <input type="radio" name="shipping" value="${idx}" class="accent-brand" />
+          <input type="radio" name="shipping" value="${idx}" class="accent-blue-700" />
           <div class="flex-1">
             <p class="text-sm font-medium">${opt.courier} - ${opt.service}</p>
-            <p class="text-xs text-text-secondary">Estimasi: ${opt.estimation}</p>
+            <p class="text-xs" style="color:var(--text-secondary)">Estimasi: ${opt.estimation}</p>
           </div>
-          <span class="text-sm font-bold text-brand">${formatPrice(opt.cost)}</span>
+          <span class="text-sm font-bold" style="color:var(--red)">${formatRupiah(opt.cost)}</span>
         `;
-
         div.addEventListener('click', () => {
-          shippingOptionsEl.querySelectorAll('div').forEach((d) => d.classList.remove('ring-2', 'ring-brand'));
-          div.classList.add('ring-2', 'ring-brand');
+          container.querySelectorAll('div').forEach(d => d.classList.remove('ring-2', 'ring-blue-700'));
+          div.classList.add('ring-2', 'ring-blue-700');
           selectedShipping = opt;
-          selectedShippingIndex = idx;
           div.querySelector('input')!.checked = true;
           updateTotal();
         });
-
-        shippingOptionsEl.appendChild(div);
+        container.appendChild(div);
       });
     } catch {
-      (window as any).showToast?.({ message: 'Gagal mengecek ongkir', type: 'error' });
+      alert('Gagal mengecek ongkir');
     } finally {
-      btnCekOngkir.disabled = false;
-      btnCekOngkir.textContent = 'Cek Ongkir';
+      btn.disabled = false; btn.textContent = 'Cek Ongkir';
     }
   });
 
-  btnSubmit.addEventListener('click', async () => {
-    if (!selectedShipping) {
-      (window as any).showToast?.({ message: 'Pilih metode pengiriman terlebih dahulu', type: 'error' });
-      return;
-    }
+  $('btn-submit-order').addEventListener('click', async () => {
+    if (!selectedShipping) { alert('Pilih metode pengiriman'); return; }
 
-    const token = getGuestToken();
-    if (!token) return;
-
-    btnSubmit.disabled = true;
-    btnSubmit.textContent = 'Memproses...';
+    const btn = $('btn-submit-order') as HTMLButtonElement;
+    btn.disabled = true; btn.textContent = 'Memproses...';
 
     try {
-      const order = await submitCheckout(token, {
+      const order = await submitCheckout({
         customer_name: formData.name,
         customer_phone: formData.phone,
         customer_email: formData.email,
         address: formData.address,
-        province_id: formData.provinceId,
-        city_id: formData.cityId,
-        subdistrict_id: formData.subdistrictId,
-        postal_code: formData.postalCode,
+        province_id: parseInt(formData.province_id),
+        city_id: parseInt(formData.city_id),
+        subdistrict_id: parseInt(formData.subdistrict_id),
+        postal_code: formData.postal_code,
         shipping_option: `${selectedShipping.courier} - ${selectedShipping.service}`,
         shipping_cost: selectedShipping.cost,
         payment_method: 'transfer_bank',
       });
-
-      removeGuestToken();
-      window.location.href = `/order/${order.secret_slug}`;
+      localStorage.removeItem('scalev_guest_token');
+      window.location.href = `/order/?slug=${order.secret_slug}`;
     } catch (err: any) {
-      (window as any).showToast?.({ message: err.message || 'Gagal memproses pesanan', type: 'error' });
-      btnSubmit.disabled = false;
-      btnSubmit.textContent = 'Bayar Sekarang';
+      alert(err.message || 'Gagal memproses pesanan');
+      btn.disabled = false; btn.textContent = 'Bayar Sekarang';
     }
   });
 
-  refreshCartBadge();
   init();
 </script>

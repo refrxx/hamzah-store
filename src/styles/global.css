@@ -1,18 +1,27 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+:root {
+  --blue: #1A5FB4;
+  --gold: #ffc107;
+  --bg: #f5f5f5;
+  --card: #ffffff;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --border: #e0e0e0;
+  --red: #ee4d2d;
+}
 
 body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-input, textarea, select, button {
-  font-family: inherit;
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--bg);
+  position: relative;
 }

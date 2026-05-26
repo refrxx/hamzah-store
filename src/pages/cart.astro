@@ -1,201 +1,141 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageShell from '../components/PageShell.astro';
 import BottomNav from '../components/BottomNav.astro';
-import CartItem from '../components/CartItem.astro';
-import Toast from '../components/Toast.astro';
-
-const title = 'Keranjang Belanja | Hamzah Quran';
 ---
+<BaseLayout title="Keranjang - Hamzah Quran">
+  <header class="sticky top-0 z-50 bg-white border-b px-4 py-3" style="border-color:var(--border)">
+    <h1 class="font-bold text-base" style="color:var(--text-primary)">Keranjang Belanja</h1>
+  </header>
 
-<BaseLayout {title}>
-  <PageShell>
-    <Fragment slot="header">
-      <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
-        <div class="flex items-center h-14 px-4">
-          <a href="/" class="p-2 -ml-2" aria-label="Kembali">
-            <svg class="w-6 h-6 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </a>
-          <span class="ml-2 text-sm font-medium text-text-primary">Keranjang</span>
-        </div>
-      </header>
-    </Fragment>
-
-    <div id="cart-skeleton" class="p-4 space-y-3">
-      {Array.from({ length: 3 }).map(() => (
-        <div class="flex gap-3 bg-card p-3 rounded-lg border border-gray-100 animate-pulse">
-          <div class="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0"></div>
-          <div class="flex-1 space-y-2">
-            <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-            <div class="h-3 bg-gray-200 rounded w-1/4"></div>
-            <div class="h-4 bg-gray-200 rounded w-1/3"></div>
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <div id="cart-empty" class="hidden text-center py-20 px-4">
-      <svg class="w-20 h-20 mx-auto text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
-      </svg>
-      <p class="text-text-secondary mt-4">Keranjang belanja kosong</p>
-      <a href="/" class="inline-block mt-4 px-6 py-2.5 bg-brand text-white rounded-lg text-sm font-medium">Belanja Sekarang</a>
-    </div>
-
-    <div id="cart-content" class="hidden p-4 space-y-3"></div>
-
-    <div id="cart-summary" class="hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-mobile bg-white border-t border-gray-200 p-4 z-40 safe-area-bottom">
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-sm text-text-secondary">Subtotal</span>
-        <span id="cart-subtotal" class="text-lg font-bold text-brand">Rp 0</span>
+  <div id="cart-loading" class="p-4 space-y-3">
+    {Array(3).fill(null).map(() => (
+      <div class="bg-white rounded-lg p-3 flex gap-3 animate-pulse">
+        <div class="w-16 h-16 bg-gray-200 rounded-lg flex-shrink-0"></div>
+        <div class="flex-1"><div class="h-3 bg-gray-200 rounded mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/2"></div></div>
       </div>
-      <button id="btn-checkout" class="w-full py-3 bg-brand text-white font-semibold rounded-lg text-sm hover:bg-brand-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-        Checkout
-      </button>
-    </div>
+    ))}
+  </div>
 
-    <Fragment slot="bottom-nav">
-      <BottomNav active="cart" />
-    </Fragment>
-  </PageShell>
-  <Toast />
+  <div id="cart-empty" class="hidden flex flex-col items-center justify-center py-24 px-8 text-center">
+    <span class="material-symbols-outlined text-gray-300 mb-4" style="font-size:5rem">shopping_cart</span>
+    <p class="font-bold text-base mb-2" style="color:var(--text-primary)">Keranjang Kosong</p>
+    <p class="text-sm mb-6" style="color:var(--text-secondary)">Yuk belanja dulu!</p>
+    <a href="/" class="px-6 py-2 rounded-lg text-white text-sm font-bold" style="background:var(--blue)">Lihat Produk</a>
+  </div>
+
+  <div id="cart-content" class="hidden pb-40">
+    <div id="cart-items" class="p-4 space-y-3"></div>
+  </div>
+
+  <div id="cart-summary" class="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t p-4 z-40 hidden" style="border-color:var(--border)">
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-sm" style="color:var(--text-secondary)">Total</span>
+      <span id="cart-total" class="text-lg font-bold" style="color:var(--red)">Rp 0</span>
+    </div>
+    <a href="/checkout" id="checkout-btn" class="block w-full py-3 rounded-lg text-center font-bold text-white text-sm" style="background:var(--blue)">
+      Checkout (<span id="cart-count-text">0</span> produk)
+    </a>
+  </div>
+
+  <BottomNav active="cart" />
 </BaseLayout>
 
 <script>
-  import { getGuestCart, updateCartItem, removeCartItem, type ScalevCartItem } from '../lib/scalev';
-  import { getGuestToken, setCartCount, refreshCartBadge } from '../lib/store';
-
-  const skeleton = document.getElementById('cart-skeleton')!;
-  const emptyEl = document.getElementById('cart-empty')!;
-  const content = document.getElementById('cart-content')!;
-  const summary = document.getElementById('cart-summary')!;
-  const subtotalEl = document.getElementById('cart-subtotal')!;
-  const checkoutBtn = document.getElementById('btn-checkout')!;
-
-  let items: ScalevCartItem[] = [];
+  import { getGuestCart, updateCartItem, removeCartItem, formatRupiah } from '../lib/scalev';
 
   async function loadCart() {
-    const token = getGuestToken();
-    if (!token) {
-      skeleton.classList.add('hidden');
-      emptyEl.classList.remove('hidden');
-      return;
-    }
+    const loadingEl = document.getElementById('cart-loading')!;
+    const emptyEl = document.getElementById('cart-empty')!;
+    const contentEl = document.getElementById('cart-content')!;
+    const summaryEl = document.getElementById('cart-summary')!;
 
     try {
-      const cart = await getGuestCart(token);
-      items = cart.items;
-      setCartCount(items.reduce((sum, i) => sum + i.quantity, 0));
+      const cart = await getGuestCart();
+      const items: any[] = cart.items || [];
 
-      skeleton.classList.add('hidden');
+      loadingEl.classList.add('hidden');
 
-      if (items.length === 0) {
+      if (!items.length) {
         emptyEl.classList.remove('hidden');
-        summary.classList.add('hidden');
         return;
       }
 
-      renderItems();
-      updateSummary();
-      content.classList.remove('hidden');
-      summary.classList.remove('hidden');
+      contentEl.classList.remove('hidden');
+      summaryEl.classList.remove('hidden');
+
+      renderItems(items);
+      updateSummary(items);
+
     } catch {
-      skeleton.innerHTML = `<div class="text-center py-20">
-        <p class="text-text-secondary mb-3">Gagal memuat keranjang</p>
-        <button onclick="location.reload()" class="px-4 py-2 bg-brand text-white rounded-lg text-sm">Coba Lagi</button>
-      </div>`;
+      loadingEl.innerHTML = `
+        <div class="text-center py-16">
+          <p style="color:var(--text-secondary)" class="mb-3">Gagal memuat keranjang</p>
+          <button onclick="location.reload()" class="px-4 py-2 rounded text-sm text-white" style="background:var(--blue)">Coba Lagi</button>
+        </div>`;
     }
   }
 
-  function renderItems() {
-    content.innerHTML = '';
-    items.forEach((item) => {
-      const div = document.createElement('div');
-      div.className = 'flex gap-3 bg-card p-3 rounded-lg border border-gray-100';
-      div.dataset.cartItem = item.id;
-      div.innerHTML = `
-        <img src="${item.image_url || '/img/placeholder.svg'}" alt="${item.name}" class="w-20 h-20 object-cover rounded-lg flex-shrink-0 bg-gray-100" loading="lazy" />
-        <div class="flex-1 min-w-0">
-          <h3 class="text-sm font-medium text-text-primary line-clamp-2">${item.name}</h3>
-          ${item.variant_name ? `<p class="text-xs text-text-secondary mt-0.5">${item.variant_name}</p>` : ''}
-          <div class="flex items-center justify-between mt-2">
-            <span class="text-sm font-bold text-brand">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(item.price)}</span>
-            <div class="flex items-center gap-2">
-              <button data-cart-dec="${item.id}" class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-text-secondary hover:border-brand hover:text-brand transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
-              </button>
-              <span class="w-6 text-center text-sm font-medium" data-cart-qty="${item.id}">${item.quantity}</span>
-              <button data-cart-inc="${item.id}" class="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center text-text-secondary hover:border-brand hover:text-brand transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              </button>
+  function renderItems(items: any[]) {
+    const container = document.getElementById('cart-items')!;
+    container.innerHTML = items.map((item: any) => {
+      const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.png';
+      const name = item.product?.name || 'Produk';
+      const variant = item.variant?.name || '';
+      const price = item.price || item.variant?.price || 0;
+      return `
+        <div class="bg-white rounded-lg p-3 flex gap-3" data-item-id="${item.id}">
+          <img src="${img}" alt="${name}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0" onerror="this.src='/placeholder.png'" />
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-medium line-clamp-2 mb-0.5" style="color:var(--text-primary)">${name}</p>
+            ${variant ? `<p class="text-xs mb-1" style="color:var(--text-secondary)">${variant}</p>` : ''}
+            <p class="text-sm font-bold" style="color:var(--red)">${formatRupiah(price)}</p>
+            <div class="flex items-center justify-between mt-2">
+              <div class="flex items-center gap-2">
+                <button class="qty-minus w-6 h-6 rounded border text-xs font-bold flex items-center justify-center" style="border-color:var(--blue);color:var(--blue)" data-id="${item.id}" data-qty="${item.quantity}">−</button>
+                <span class="qty-val text-xs font-bold w-4 text-center">${item.quantity}</span>
+                <button class="qty-plus w-6 h-6 rounded text-xs font-bold text-white flex items-center justify-center" style="background:var(--blue)" data-id="${item.id}" data-qty="${item.quantity}">+</button>
+              </div>
+              <button class="remove-btn text-xs" style="color:var(--text-secondary)" data-id="${item.id}">Hapus</button>
             </div>
           </div>
         </div>
-        <button data-cart-remove="${item.id}" class="flex-shrink-0 self-start text-text-secondary hover:text-red-500 transition-colors p-1" aria-label="Hapus item">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-        </button>
       `;
+    }).join('');
 
-      div.querySelector('[data-cart-inc]')?.addEventListener('click', () => handleUpdate(item.id, item.quantity + 1));
-      div.querySelector('[data-cart-dec]')?.addEventListener('click', () => {
-        if (item.quantity > 1) handleUpdate(item.id, item.quantity - 1);
+    container.querySelectorAll('.qty-minus').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt((btn as HTMLElement).dataset.id || '0');
+        const qty = parseInt((btn as HTMLElement).dataset.qty || '1');
+        if (qty <= 1) return;
+        await updateCartItem(id, qty - 1);
+        loadCart();
       });
-      div.querySelector('[data-cart-remove]')?.addEventListener('click', () => handleRemove(item.id));
+    });
 
-      content.appendChild(div);
+    container.querySelectorAll('.qty-plus').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt((btn as HTMLElement).dataset.id || '0');
+        const qty = parseInt((btn as HTMLElement).dataset.qty || '1');
+        await updateCartItem(id, qty + 1);
+        loadCart();
+      });
+    });
+
+    container.querySelectorAll('.remove-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = parseInt((btn as HTMLElement).dataset.id || '0');
+        await removeCartItem(id);
+        loadCart();
+      });
     });
   }
 
-  function updateSummary() {
-    const subtotal = items.reduce((sum, i) => sum + i.subtotal, 0);
-    subtotalEl.textContent = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(subtotal);
+  function updateSummary(items: any[]) {
+    const total = items.reduce((sum: number, item: any) => sum + (item.price || 0) * item.quantity, 0);
+    const count = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
+    document.getElementById('cart-total')!.textContent = formatRupiah(total);
+    document.getElementById('cart-count-text')!.textContent = String(count);
   }
 
-  async function handleUpdate(itemId: string, qty: number) {
-    const token = getGuestToken();
-    if (!token) return;
-
-    try {
-      const cart = await updateCartItem(itemId, qty, token);
-      items = cart.items;
-      renderItems();
-      updateSummary();
-      setCartCount(items.reduce((sum, i) => sum + i.quantity, 0));
-    } catch {
-      (window as any).showToast?.({ message: 'Gagal mengupdate keranjang', type: 'error' });
-    }
-  }
-
-  async function handleRemove(itemId: string) {
-    const token = getGuestToken();
-    if (!token) return;
-
-    try {
-      const cart = await removeCartItem(itemId, token);
-      items = cart.items;
-      if (items.length === 0) {
-        content.classList.add('hidden');
-        summary.classList.add('hidden');
-        emptyEl.classList.remove('hidden');
-      } else {
-        renderItems();
-        updateSummary();
-      }
-      setCartCount(items.reduce((sum, i) => sum + i.quantity, 0));
-      (window as any).showToast?.({ message: 'Item dihapus dari keranjang', type: 'success' });
-    } catch {
-      (window as any).showToast?.({ message: 'Gagal menghapus item', type: 'error' });
-    }
-  }
-
-  checkoutBtn.addEventListener('click', () => {
-    window.location.href = '/checkout';
-  });
-
-  refreshCartBadge();
   loadCart();
 </script>

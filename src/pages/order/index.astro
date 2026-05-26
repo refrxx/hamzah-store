@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BottomNav from '../../components/BottomNav.astro';
+---
+<BaseLayout title="Pesanan - Hamzah Quran">
+  <header class="sticky top-0 z-50 bg-white border-b px-4 py-3" style="border-color:var(--border)">
+    <a href="/" class="flex items-center gap-2">
+      <span class="material-symbols-outlined" style="color:var(--text-primary)">arrow_back</span>
+      <h1 class="font-bold text-base" style="color:var(--text-primary)">Konfirmasi Pesanan</h1>
+    </a>
+  </header>
+
+  <div id="order-loading" class="p-4 space-y-4 animate-pulse">
+    <div class="text-center">
+      <div class="w-16 h-16 bg-gray-200 rounded-full mx-auto"></div>
+      <div class="h-5 bg-gray-200 rounded w-48 mx-auto mt-3"></div>
+    </div>
+    <div class="bg-white rounded-lg p-4"><div class="h-4 bg-gray-200 rounded w-1/2"></div></div>
+    <div class="bg-white rounded-lg p-4"><div class="h-4 bg-gray-200 rounded w-1/2"></div></div>
+  </div>
+
+  <div id="order-content" class="hidden p-4 space-y-4 pb-32">
+    <div class="text-center">
+      <svg class="w-16 h-16 mx-auto text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <h2 class="text-lg font-bold mt-3" style="color:var(--text-primary)">Pesanan Berhasil Dibuat!</h2>
+      <p id="order-id" class="text-sm mt-1" style="color:var(--text-secondary)"></p>
+      <p id="order-date" class="text-xs" style="color:var(--text-secondary)"></p>
+    </div>
+
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">DETAIL PRODUK</h3>
+      <div id="order-items" class="space-y-2"></div>
+      <div class="border-t mt-3 pt-3" style="border-color:var(--border)">
+        <div class="flex justify-between text-sm">
+          <span style="color:var(--text-secondary)">Total</span>
+          <span id="order-total" class="font-bold" style="color:var(--red)"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">INSTRUKSI PEMBAYARAN</h3>
+      <div class="space-y-1 text-sm">
+        <p><span style="color:var(--text-secondary)">Bank:</span> <span id="pay-bank" class="font-medium"></span></p>
+        <p><span style="color:var(--text-secondary)">No. Rekening:</span> <span id="pay-account" class="font-medium"></span></p>
+        <p><span style="color:var(--text-secondary)">Atas Nama:</span> <span id="pay-name" class="font-medium"></span></p>
+        <p class="mt-2"><span style="color:var(--text-secondary)">Total Bayar:</span> <span id="pay-total" class="font-bold text-lg" style="color:var(--red)"></span></p>
+        <p><span style="color:var(--text-secondary)">Batas Bayar:</span> <span id="pay-due" class="font-medium" style="color:var(--red)"></span></p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg p-4">
+      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">UPLOAD BUKTI TRANSFER</h3>
+      <input type="file" id="proof-file" accept="image/*" class="w-full text-sm file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:text-white" style="file:background:var(--blue)" />
+      <button id="btn-upload-proof" class="w-full mt-3 py-2.5 rounded-lg font-semibold text-sm text-white disabled:opacity-50 disabled:cursor-not-allowed" style="background:var(--blue)">
+        Upload Bukti
+      </button>
+      <p id="upload-status" class="text-xs mt-2 text-center" style="color:var(--text-secondary)"></p>
+    </div>
+
+    <a
+      id="wa-link"
+      href="#"
+      target="_blank"
+      class="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-semibold text-sm text-white" style="background:#25D366"
+    >
+      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Hubungi CS via WhatsApp
+    </a>
+  </div>
+
+  <div id="order-error" class="hidden text-center py-20 px-4">
+    <p style="color:var(--text-secondary)" class="mb-3">Pesanan tidak ditemukan</p>
+    <a href="/" class="px-6 py-2 rounded-lg text-white text-sm font-bold" style="background:var(--blue)">Kembali ke Beranda</a>
+  </div>
+
+  <BottomNav active="order" />
+</BaseLayout>
+
+<script>
+  import { getOrderBySlug, uploadTransferProof, formatRupiah } from '../../lib/scalev';
+
+  const secretSlug = new URLSearchParams(window.location.search).get('slug') || '';
+
+  if (!secretSlug) {
+    document.getElementById('order-loading')?.classList.add('hidden');
+    document.getElementById('order-error')?.classList.remove('hidden');
+  } else {
+    async function init() {
+      try {
+        const order = await getOrderBySlug(secretSlug);
+        render(order);
+        document.getElementById('order-loading')?.classList.add('hidden');
+        document.getElementById('order-content')?.classList.remove('hidden');
+      } catch {
+        document.getElementById('order-loading')?.classList.add('hidden');
+        document.getElementById('order-error')?.classList.remove('hidden');
+      }
+    }
+
+    function formatDate(dateStr: string) {
+      return new Date(dateStr).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function render(order: any) {
+      document.title = `Pesanan #${order.id} - Hamzah Quran`;
+      document.getElementById('order-id')!.textContent = `Order #${order.id}`;
+      document.getElementById('order-date')!.textContent = formatDate(order.created_at);
+
+      const itemsEl = document.getElementById('order-items')!;
+      (order.items || []).forEach((item: any) => {
+        const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.png';
+        const name = item.product?.name || 'Produk';
+        itemsEl.innerHTML += `
+          <div class="flex items-center gap-3">
+            <img src="${img}" class="w-12 h-12 object-cover rounded bg-gray-100" />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm line-clamp-1">${name}</p>
+              <p class="text-xs" style="color:var(--text-secondary)">${item.quantity}x</p>
+            </div>
+            <span class="text-sm font-medium">${formatRupiah(item.price * item.quantity)}</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('order-total')!.textContent = formatRupiah(order.gross_revenue);
+
+      if (order.payment_instructions) {
+        document.getElementById('pay-bank')!.textContent = order.payment_instructions.bank_name;
+        document.getElementById('pay-account')!.textContent = order.payment_instructions.account_number;
+        document.getElementById('pay-name')!.textContent = order.payment_instructions.account_name;
+      }
+      document.getElementById('pay-total')!.textContent = formatRupiah(order.gross_revenue);
+      document.getElementById('pay-due')!.textContent = formatDate(order.payment_due_at);
+
+      const waLink = document.getElementById('wa-link') as HTMLAnchorElement;
+      waLink.href = `https://wa.me/?text=Halo%20saya%20ingin%20konfirmasi%20pesanan%20${order.id}`;
+    }
+
+    document.getElementById('btn-upload-proof')?.addEventListener('click', async () => {
+      const file = (document.getElementById('proof-file') as HTMLInputElement).files?.[0];
+      if (!file) { alert('Pilih file bukti transfer terlebih dahulu'); return; }
+
+      const btn = document.getElementById('btn-upload-proof') as HTMLButtonElement;
+      btn.disabled = true; btn.textContent = 'Mengupload...';
+
+      try {
+        await uploadTransferProof(secretSlug, file);
+        document.getElementById('upload-status')!.textContent = 'Bukti transfer berhasil diupload!';
+        (document.getElementById('upload-status')!).style.color = '#16a34a';
+        btn.textContent = 'Upload Berhasil';
+      } catch {
+        document.getElementById('upload-status')!.textContent = 'Gagal upload. Coba lagi.';
+        (document.getElementById('upload-status')!).style.color = '#dc2626';
+        btn.disabled = false; btn.textContent = 'Upload Bukti';
+      }
+    });
+
+    init();
+  }
+</script>

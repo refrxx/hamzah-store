@@ -1,0 +1,219 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Detail Produk">
+  <header class="sticky top-0 z-50 bg-white border-b flex items-center px-4 py-3 gap-3" style="border-color:var(--border)">
+    <a href="/" onclick="history.back();return false;">
+      <span class="material-symbols-outlined" style="color:var(--text-primary)">arrow_back</span>
+    </a>
+    <span class="font-semibold text-sm flex-1" id="header-title">Detail Produk</span>
+    <a href="/cart" class="relative">
+      <span class="material-symbols-outlined" style="color:var(--text-primary)">shopping_cart</span>
+      <span data-cart-count style="background:var(--red);color:white;font-size:10px;font-weight:700;position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center">0</span>
+    </a>
+  </header>
+
+  <div id="gallery" class="relative bg-white" style="aspect-ratio:1">
+    <div id="gallery-loading" class="absolute inset-0 bg-gray-100 animate-pulse flex items-center justify-center">
+      <span class="material-symbols-outlined text-gray-300" style="font-size:3rem">image</span>
+    </div>
+    <img id="main-image" src="" alt="" class="w-full h-full object-cover hidden" />
+    <div id="image-dots" class="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5"></div>
+  </div>
+
+  <div id="thumbnails" class="flex gap-2 px-4 py-2 bg-white overflow-x-auto scrollbar-hide"></div>
+
+  <div class="bg-white mt-2 p-4">
+    <div id="price-skeleton" class="h-7 bg-gray-100 rounded animate-pulse w-1/2 mb-2"></div>
+    <p id="product-price" class="text-2xl font-bold hidden" style="color:var(--red)"></p>
+    <div id="name-skeleton" class="h-4 bg-gray-100 rounded animate-pulse w-3/4 mt-2"></div>
+    <h1 id="product-name" class="text-base font-semibold mt-2 hidden" style="color:var(--text-primary)"></h1>
+  </div>
+
+  <div id="variant-section" class="bg-white mt-2 p-4 hidden">
+    <p class="text-xs font-semibold mb-2" style="color:var(--text-secondary)">PILIH VARIAN</p>
+    <div id="variant-list" class="flex flex-wrap gap-2"></div>
+  </div>
+
+  <div class="bg-white mt-2 p-4 flex items-center justify-between">
+    <span class="text-sm font-semibold" style="color:var(--text-primary)">Jumlah</span>
+    <div class="flex items-center gap-3">
+      <button id="qty-minus" class="w-8 h-8 rounded-full border flex items-center justify-center font-bold" style="border-color:var(--blue);color:var(--blue)">−</button>
+      <span id="qty-display" class="text-base font-bold w-6 text-center">1</span>
+      <button id="qty-plus" class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white" style="background:var(--blue)">+</button>
+    </div>
+  </div>
+
+  <div class="bg-white mt-2 p-4">
+    <button id="desc-toggle" class="w-full flex items-center justify-between">
+      <span class="text-sm font-bold" style="color:var(--text-primary)">Deskripsi Produk</span>
+      <span class="material-symbols-outlined" style="color:var(--text-secondary)">expand_more</span>
+    </button>
+    <div id="desc-content" class="mt-3 text-sm hidden" style="color:var(--text-secondary);line-height:1.6"></div>
+  </div>
+
+  <div class="h-24"></div>
+
+  <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t p-3 flex gap-3 z-50" style="border-color:var(--border)">
+    <button id="btn-cart" class="flex-1 py-3 rounded-lg font-bold text-sm border-2 transition-colors" style="border-color:var(--blue);color:var(--blue)">
+      Keranjang
+    </button>
+    <button id="btn-buy" class="flex-1 py-3 rounded-lg font-bold text-sm text-white transition-colors" style="background:var(--red)">
+      Beli Langsung
+    </button>
+  </div>
+</BaseLayout>
+
+<script>
+  import { getProductDetail, addToCart, refreshCartBadge, formatRupiah } from '../../lib/scalev';
+
+  const slug = new URLSearchParams(window.location.search).get('slug') || '';
+
+  if (!slug) {
+    document.querySelector('.app-shell')!.innerHTML = `
+      <div class="flex flex-col items-center justify-center h-screen gap-4 p-8 text-center">
+        <span class="material-symbols-outlined text-gray-300" style="font-size:4rem">error_outline</span>
+        <p style="color:var(--text-secondary)">Produk tidak ditemukan</p>
+        <a href="/" class="px-6 py-2 rounded-lg text-white text-sm font-bold" style="background:var(--blue)">Kembali</a>
+      </div>`;
+  } else {
+    let selectedVariantId: number | null = null;
+    let quantity = 1;
+
+    function showToast(msg: string, success = true) {
+      const t = document.createElement('div');
+      t.className = 'fixed top-20 left-1/2 -translate-x-1/2 z-[100] px-4 py-2 rounded-lg text-sm font-semibold text-white shadow-lg';
+      t.style.background = success ? '#4caf50' : '#f44336';
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2500);
+    }
+
+    async function init() {
+      try {
+        const product = await getProductDetail(slug);
+
+        document.title = `${product.name} - Hamzah Quran`;
+        const headerTitle = document.getElementById('header-title');
+        if (headerTitle) headerTitle.textContent = product.name;
+
+        const firstVariant = product.variants?.[0];
+        selectedVariantId = firstVariant?.id || null;
+        const price = firstVariant?.price ?? product.min_price ?? product.price ?? 0;
+        document.getElementById('price-skeleton')?.classList.add('hidden');
+        const priceEl = document.getElementById('product-price')!;
+        priceEl.textContent = formatRupiah(price);
+        priceEl.classList.remove('hidden');
+
+        document.getElementById('name-skeleton')?.classList.add('hidden');
+        const nameEl = document.getElementById('product-name')!;
+        nameEl.textContent = product.name;
+        nameEl.classList.remove('hidden');
+
+        const images: any[] = product.images || [];
+        if (images.length) {
+          const loadingEl = document.getElementById('gallery-loading')!;
+          const mainImg = document.getElementById('main-image') as HTMLImageElement;
+          mainImg.src = images[0].url;
+          mainImg.onload = () => { loadingEl.classList.add('hidden'); mainImg.classList.remove('hidden'); };
+          mainImg.onerror = () => { loadingEl.classList.add('hidden'); mainImg.classList.remove('hidden'); };
+
+          const thumbsEl = document.getElementById('thumbnails')!;
+          thumbsEl.innerHTML = images.map((img: any, i: number) => `
+            <button class="thumb flex-shrink-0 w-14 h-14 rounded border-2 overflow-hidden ${i === 0 ? 'border-blue-700' : 'border-transparent'}" data-src="${img.url}" data-idx="${i}">
+              <img src="${img.url}" class="w-full h-full object-cover" loading="lazy" />
+            </button>
+          `).join('');
+
+          thumbsEl.querySelectorAll('.thumb').forEach(btn => {
+            btn.addEventListener('click', () => {
+              mainImg.src = (btn as HTMLElement).dataset.src || '';
+              thumbsEl.querySelectorAll('.thumb').forEach(b => b.classList.replace('border-blue-700', 'border-transparent'));
+              btn.classList.replace('border-transparent', 'border-blue-700');
+            });
+          });
+
+          if (images.length > 1) {
+            const dotsEl = document.getElementById('image-dots')!;
+            dotsEl.innerHTML = images.map((_: any, i: number) => `
+              <span class="w-1.5 h-1.5 rounded-full ${i === 0 ? 'bg-white' : 'bg-white/50'}"></span>
+            `).join('');
+          }
+        }
+
+        if (product.variants?.length > 1) {
+          const section = document.getElementById('variant-section')!;
+          section.classList.remove('hidden');
+          const list = document.getElementById('variant-list')!;
+          list.innerHTML = product.variants.map((v: any, i: number) => `
+            <button
+              class="variant-btn px-3 py-1.5 rounded border text-xs font-semibold transition-all ${i === 0 ? 'border-blue-700 text-blue-700 bg-blue-50' : 'border-gray-300 text-gray-600'}"
+              data-id="${v.id}" data-price="${v.price || price}"
+            >${v.name}</button>
+          `).join('');
+
+          list.querySelectorAll('.variant-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+              selectedVariantId = parseInt((btn as HTMLElement).dataset.id || '0');
+              const vPrice = parseFloat((btn as HTMLElement).dataset.price || '0');
+              if (vPrice) priceEl.textContent = formatRupiah(vPrice);
+              list.querySelectorAll('.variant-btn').forEach(b => {
+                b.className = 'variant-btn px-3 py-1.5 rounded border text-xs font-semibold transition-all border-gray-300 text-gray-600';
+              });
+              btn.className = 'variant-btn px-3 py-1.5 rounded border text-xs font-semibold transition-all border-blue-700 text-blue-700 bg-blue-50';
+            });
+          });
+        }
+
+        if (product.description) {
+          const descContent = document.getElementById('desc-content')!;
+          descContent.innerHTML = product.description;
+          document.getElementById('desc-toggle')?.addEventListener('click', () => {
+            descContent.classList.toggle('hidden');
+          });
+        }
+
+      } catch (err) {
+        document.querySelector('.app-shell')!.innerHTML = `
+          <div class="flex flex-col items-center justify-center h-screen gap-4 p-8 text-center">
+            <span class="material-symbols-outlined text-gray-300" style="font-size:4rem">error_outline</span>
+            <p style="color:var(--text-secondary)">Produk tidak ditemukan</p>
+            <a href="/" class="px-6 py-2 rounded-lg text-white text-sm font-bold" style="background:var(--blue)">Kembali</a>
+          </div>`;
+      }
+    }
+
+    const qtyDisplay = document.getElementById('qty-display')!;
+    document.getElementById('qty-minus')?.addEventListener('click', () => {
+      if (quantity > 1) { quantity--; qtyDisplay.textContent = String(quantity); }
+    });
+    document.getElementById('qty-plus')?.addEventListener('click', () => {
+      quantity++;
+      qtyDisplay.textContent = String(quantity);
+    });
+
+    async function handleAddToCart(redirect = false) {
+      if (!selectedVariantId) { showToast('Pilih varian dulu', false); return; }
+      const btn = redirect ? document.getElementById('btn-buy') : document.getElementById('btn-cart');
+      if (btn) { (btn as HTMLButtonElement).disabled = true; btn.textContent = '...'; }
+      try {
+        await addToCart(selectedVariantId, quantity);
+        await refreshCartBadge();
+        if (redirect) { window.location.href = '/cart'; }
+        else { showToast('Berhasil ditambahkan ke keranjang ✓'); }
+      } catch { showToast('Gagal menambahkan', false); }
+      finally {
+        if (btn) {
+          (btn as HTMLButtonElement).disabled = false;
+          btn.textContent = redirect ? 'Beli Langsung' : 'Keranjang';
+        }
+      }
+    }
+
+    document.getElementById('btn-cart')?.addEventListener('click', () => handleAddToCart(false));
+    document.getElementById('btn-buy')?.addEventListener('click', () => handleAddToCart(true));
+
+    init();
+    refreshCartBadge();
+  }
+</script>

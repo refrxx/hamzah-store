@@ -1,207 +1,173 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import PageShell from '../components/PageShell.astro';
 import BottomNav from '../components/BottomNav.astro';
-import ProductCard from '../components/ProductCard.astro';
-import Toast from '../components/Toast.astro';
-
-const title = 'Hamzah Quran Store';
-const description = 'Al Quran Custom berkualitas - Pesan Quran custom dengan desain impianmu';
 ---
-
-<BaseLayout {title} {description}>
-  <PageShell>
-    <Fragment slot="header">
-      <header class="sticky top-0 z-40 bg-white border-b border-gray-200">
-        <div class="flex items-center justify-between px-4 h-14">
-          <h1 class="font-display text-lg font-bold text-brand">Hamzah Quran</h1>
-          <a href="/cart" class="relative p-2 -mr-2">
-            <svg class="w-6 h-6 text-text-primary" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/>
-            </svg>
-            <span data-cart-count class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 hidden"></span>
-          </a>
-        </div>
-        <div class="px-4 pb-3">
-          <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input
-              type="text"
-              id="search-input"
-              placeholder="Cari Al Quran..."
-              class="w-full pl-10 pr-4 py-2.5 bg-bg rounded-lg text-sm text-text-primary placeholder-text-secondary outline-none focus:ring-2 focus:ring-brand/30 border border-transparent focus:border-brand transition-all"
-            />
-          </div>
-        </div>
-      </header>
-    </Fragment>
-
-    <div class="px-4 pt-4">
-      <div class="bg-gradient-to-r from-brand to-blue-700 rounded-xl p-4 mb-4 text-white">
-        <p class="font-display text-lg font-bold">Al Quran Custom</p>
-        <p class="text-sm text-white/80 mt-1">Buat Quran impianmu dengan desain favorit</p>
-      </div>
-
-      <div id="product-grid" class="grid grid-cols-2 gap-3">
-        {Array.from({ length: 6 }).map(() => (
-          <div class="bg-card rounded-lg overflow-hidden shadow-sm border border-gray-100 animate-pulse">
-            <div class="aspect-square bg-gray-200"></div>
-            <div class="p-2.5 space-y-2">
-              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div id="load-more-trigger" class="h-10"></div>
+<BaseLayout title="Hamzah Quran - Al Quran Custom">
+  <header style="background:var(--blue)" class="sticky top-0 z-50 px-4 py-3 flex items-center gap-3">
+    <div class="flex-1">
+      <h1 style="font-family:'Nunito',sans-serif;color:white;font-size:1.25rem;font-weight:900">
+        Hamzah Quran
+      </h1>
     </div>
+    <a href="/cart" class="relative">
+      <span class="material-symbols-outlined" style="color:white">shopping_cart</span>
+      <span data-cart-count style="background:var(--gold);color:#212121;font-size:10px;font-weight:700;position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;display:none;align-items:center;justify-content:center">0</span>
+    </a>
+  </header>
 
-    <Fragment slot="bottom-nav">
-      <BottomNav active="home" />
-    </Fragment>
-  </PageShell>
-  <Toast />
+  <div class="px-4 py-3" style="background:var(--blue)">
+    <div class="flex items-center gap-2 bg-white rounded-lg px-3 py-2">
+      <span class="material-symbols-outlined" style="color:var(--text-secondary);font-size:1.1rem">search</span>
+      <input
+        id="search-input"
+        type="text"
+        placeholder="Cari produk..."
+        class="flex-1 outline-none text-sm"
+        style="color:var(--text-primary)"
+      />
+    </div>
+  </div>
+
+  <div class="p-3">
+    <div id="product-grid" class="grid grid-cols-2 gap-3">
+      {Array(6).fill(null).map(() => (
+        <div class="bg-white rounded-lg overflow-hidden animate-pulse">
+          <div class="aspect-square bg-gray-200"></div>
+          <div class="p-2">
+            <div class="h-3 bg-gray-200 rounded mb-2"></div>
+            <div class="h-3 bg-gray-200 rounded w-2/3"></div>
+          </div>
+        </div>
+      ))}
+    </div>
+    <div id="load-more" class="mt-4 text-center hidden">
+      <button id="load-more-btn" class="px-6 py-2 rounded-full text-sm font-semibold" style="background:var(--blue);color:white">
+        Lihat Lebih Banyak
+      </button>
+    </div>
+  </div>
+
+  <div class="h-20"></div>
+  <BottomNav active="home" />
 </BaseLayout>
 
 <script>
-  import { getProducts, searchProducts, addToCart, type ScalevProduct } from '../lib/scalev';
-  import { getGuestToken, setGuestToken, incrementCartCount, refreshCartBadge } from '../lib/store';
+  import { getProducts, addToCart, refreshCartBadge, formatRupiah } from '../lib/scalev';
 
   let currentPage = 1;
-  let loading = false;
+  let isLoading = false;
   let hasMore = true;
-  let currentQuery = '';
 
-  const grid = document.getElementById('product-grid')!;
-  const searchInput = document.getElementById('search-input') as HTMLInputElement;
-  const loadTrigger = document.getElementById('load-more-trigger')!;
-
-  let searchTimer: ReturnType<typeof setTimeout>;
-
-  searchInput.addEventListener('input', () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(async () => {
-      currentQuery = searchInput.value.trim();
-      currentPage = 1;
-      hasMore = true;
-      grid.innerHTML = '';
-      await loadProducts(true);
-    }, 400);
-  });
-
-  async function loadProducts(replace = false) {
-    if (loading || !hasMore) return;
-    loading = true;
-
-    try {
-      let result;
-      if (currentQuery) {
-        result = await searchProducts(currentQuery, currentPage);
-      } else {
-        result = await getProducts(currentPage);
-      }
-
-      if (replace) {
-        grid.innerHTML = '';
-      }
-
-      if (result.data.length === 0 && currentPage === 1) {
-        grid.innerHTML = '<div class="col-span-2 text-center py-12 text-text-secondary"><p>Produk tidak ditemukan</p></div>';
-        hasMore = false;
-        return;
-      }
-
-      result.data.forEach((product: ScalevProduct) => {
-        const card = document.createElement('div');
-        card.innerHTML = createProductHTML(product);
-        card.querySelector('[data-add-cart]')?.addEventListener('click', async (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          await handleAddToCart(product);
-        });
-        card.querySelector('a')?.addEventListener('click', (e) => {
-          if ((e.target as HTMLElement).closest('[data-add-cart]')) {
-            e.preventDefault();
-          }
-        });
-        grid.appendChild(card);
-      });
-
-      hasMore = result.page * result.per_page < result.total;
-      currentPage++;
-    } catch (err) {
-      (window as any).showToast?.({ message: 'Gagal memuat produk', type: 'error' });
-      if (replace) {
-        grid.innerHTML = `<div class="col-span-2 text-center py-12">
-          <p class="text-text-secondary mb-3">Gagal memuat produk</p>
-          <button onclick="location.reload()" class="px-4 py-2 bg-brand text-white rounded-lg text-sm">Coba Lagi</button>
-        </div>`;
-      }
-    } finally {
-      loading = false;
-    }
-  }
-
-  function createProductHTML(product: ScalevProduct): string {
-    const price = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.price);
-    const originalPrice = product.original_price && product.original_price > product.price
-      ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(product.original_price)
-      : '';
+  function renderCard(item: any) {
+    const img = item.images?.[0]?.url || '/placeholder.png';
+    const price = item.min_price ?? item.price ?? 0;
+    const slug = item.slug || '';
     return `
-      <div class="bg-card rounded-lg overflow-hidden shadow-sm border border-gray-100">
-        <a href="/produk/${product.slug}" class="block relative">
-          <div class="aspect-square bg-gray-100 overflow-hidden">
-            <img src="${product.image_url || '/img/placeholder.svg'}" alt="${product.name}" class="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
+      <div class="bg-white rounded-lg overflow-hidden shadow-sm">
+        <a href="/produk/?slug=${slug}">
+          <div class="aspect-square overflow-hidden bg-gray-100">
+            <img src="${img}" alt="${item.name}" loading="lazy"
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              onerror="this.src='/placeholder.png'" />
           </div>
-          <button data-add-cart class="absolute bottom-2 right-2 w-8 h-8 bg-brand text-white rounded-full flex items-center justify-center shadow-lg hover:bg-brand-dark transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-          </button>
         </a>
-        <div class="p-2.5">
-          <a href="/produk/${product.slug}">
-            <h3 class="text-sm font-medium text-text-primary line-clamp-2 leading-tight min-h-[2.5em]">${product.name}</h3>
+        <div class="p-2">
+          <a href="/produk/?slug=${slug}">
+            <p class="text-xs font-medium line-clamp-2 mb-1" style="color:var(--text-primary)">${item.name}</p>
           </a>
-          <div class="mt-1.5 flex items-baseline gap-1">
-            <span class="text-sm font-bold text-brand">${price}</span>
-            ${originalPrice ? `<span class="text-xs text-text-secondary line-through">${originalPrice}</span>` : ''}
-          </div>
+          <p class="text-sm font-bold" style="color:var(--red)">${formatRupiah(price)}</p>
+          <button
+            class="add-to-cart mt-2 w-full py-1.5 rounded text-xs font-semibold transition-colors"
+            style="background:var(--blue);color:white"
+            data-variant-id="${item.variants?.[0]?.id || ''}"
+          >
+            + Keranjang
+          </button>
         </div>
       </div>
     `;
   }
 
-  async function handleAddToCart(product: ScalevProduct) {
-    let guestToken = getGuestToken();
-    if (!guestToken) {
-      guestToken = crypto.randomUUID();
-      setGuestToken(guestToken);
+  async function loadProducts(search = '', page = 1) {
+    if (isLoading) return;
+    isLoading = true;
+
+    const grid = document.getElementById('product-grid')!;
+    if (page === 1) {
+      grid.innerHTML = Array(6).fill(`
+        <div class="bg-white rounded-lg overflow-hidden animate-pulse">
+          <div class="aspect-square bg-gray-200"></div>
+          <div class="p-2"><div class="h-3 bg-gray-200 rounded mb-2"></div><div class="h-3 bg-gray-200 rounded w-2/3"></div></div>
+        </div>
+      `).join('');
     }
 
     try {
-      await addToCart(product.id, 1, guestToken, product.variants?.[0]?.id);
-      incrementCartCount();
-      (window as any).showToast?.({ message: `${product.name} ditambahkan ke keranjang`, type: 'success' });
+      const data = await getProducts({ search, page, per_page: 10 });
+      const items = data.results || data.items || data.data || [];
+
+      if (page === 1) grid.innerHTML = '';
+
+      if (!items.length && page === 1) {
+        grid.innerHTML = `
+          <div class="col-span-2 text-center py-16">
+            <p style="color:var(--text-secondary)">Produk tidak ditemukan</p>
+          </div>`;
+        return;
+      }
+
+      items.forEach((item: any) => {
+        grid.insertAdjacentHTML('beforeend', renderCard(item));
+      });
+
+      hasMore = items.length === 10;
+      const loadMoreEl = document.getElementById('load-more')!;
+      loadMoreEl.classList.toggle('hidden', !hasMore);
+
+      grid.querySelectorAll('.add-to-cart').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const variantId = parseInt((btn as HTMLElement).dataset.variantId || '0');
+          if (!variantId) return;
+          (btn as HTMLButtonElement).disabled = true;
+          btn.textContent = '...';
+          try {
+            await addToCart(variantId, 1);
+            await refreshCartBadge();
+            btn.textContent = '✓ Ditambahkan';
+            setTimeout(() => { btn.textContent = '+ Keranjang'; (btn as HTMLButtonElement).disabled = false; }, 1500);
+          } catch {
+            btn.textContent = '+ Keranjang';
+            (btn as HTMLButtonElement).disabled = false;
+          }
+        });
+      });
+
     } catch (err) {
-      (window as any).showToast?.({ message: 'Gagal menambahkan produk', type: 'error' });
+      grid.innerHTML = `
+        <div class="col-span-2 text-center py-16">
+          <p style="color:var(--text-secondary)" class="mb-3">Gagal memuat produk</p>
+          <button onclick="location.reload()" class="px-4 py-2 rounded text-sm" style="background:var(--blue);color:white">Coba Lagi</button>
+        </div>`;
+    } finally {
+      isLoading = false;
     }
   }
 
+  let debounce: ReturnType<typeof setTimeout>;
+  document.getElementById('search-input')?.addEventListener('input', (e) => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => {
+      currentPage = 1;
+      loadProducts((e.target as HTMLInputElement).value);
+    }, 400);
+  });
+
+  document.getElementById('load-more-btn')?.addEventListener('click', () => {
+    currentPage++;
+    loadProducts('', currentPage);
+  });
+
+  loadProducts();
   refreshCartBadge();
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      if (entries[0].isIntersecting) {
-        loadProducts();
-      }
-    },
-    { rootMargin: '200px' }
-  );
-  observer.observe(loadTrigger);
-
-  loadProducts(true);
 </script>

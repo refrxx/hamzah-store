@@ -2,284 +2,127 @@ const API_BASE = 'https://api.scalev.com';
 const STORE_ID = import.meta.env.PUBLIC_SCALEV_STORE_ID;
 const API_KEY = import.meta.env.PUBLIC_SCALEV_API_KEY;
 
-interface ApiOptions {
-  method?: string;
-  body?: unknown;
-  guestToken?: string | null;
-}
+async function scalevFetch(path: string, init: RequestInit = {}) {
+  const headers = new Headers(init.headers);
+  headers.set('Accept', 'application/json');
+  headers.set('X-Scalev-Storefront-Api-Key', API_KEY);
 
-async function apiFetch<T>(path: string, options: ApiOptions = {}): Promise<T> {
-  const { method = 'GET', body, guestToken } = options;
+  const guestToken = localStorage.getItem('scalev_guest_token');
+  if (guestToken) headers.set('X-Scalev-Guest-Token', guestToken);
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'X-API-Key': API_KEY,
-    'X-Store-ID': STORE_ID,
-  };
-
-  if (guestToken) {
-    headers['X-Guest-Token'] = guestToken;
-  }
-
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
+  const res = await fetch(`${API_BASE}/v3/stores/${STORE_ID}${path}`, {
+    ...init,
+    credentials: 'omit',
     headers,
-    body: body ? JSON.stringify(body) : undefined,
   });
 
+  const newToken = res.headers.get('x-scalev-guest-token');
+  if (newToken) localStorage.setItem('scalev_guest_token', newToken);
+
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || `API error: ${res.status}`);
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as any).message || `Scalev error: ${res.status}`);
   }
 
   return res.json();
 }
 
-export function formatRupiah(amount: number): string {
-  return `Rp ${amount.toLocaleString('id-ID')}`;
-}
-
-export interface ScalevProduct {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  image_url: string;
-  images?: string[];
-  price: number;
-  original_price?: number;
-  variants?: ScalevVariant[];
-  shipping_info?: {
-    free_shipping?: boolean;
-    cod?: boolean;
-    warranty?: boolean;
-  };
-}
-
-export interface ScalevVariant {
-  id: string;
-  name: string;
-  price?: number;
-}
-
-export interface ScalevCart {
-  id: string;
-  guest_token: string;
-  items: ScalevCartItem[];
-  subtotal: number;
-}
-
-export interface ScalevCartItem {
-  id: string;
-  product_id: string;
-  variant_id?: string;
-  name: string;
-  image_url: string;
-  variant_name?: string;
-  quantity: number;
-  price: number;
-  subtotal: number;
-}
-
-export interface ScalevLocation {
-  id: string;
-  name: string;
-}
-
-export interface ScalevShippingOption {
-  courier: string;
-  service: string;
-  cost: number;
-  estimation: string;
-}
-
-export interface ScalevCheckoutSummary {
-  subtotal: number;
-  shipping_cost: number;
-  total: number;
-  items: ScalevCartItem[];
-}
-
-export interface ScalevOrder {
-  id: string;
-  secret_slug: string;
-  created_at: string;
-  items: ScalevCartItem[];
-  subtotal: number;
-  shipping_cost: number;
-  gross_revenue: number;
-  payment_instructions: {
-    bank_name: string;
-    account_number: string;
-    account_name: string;
-  };
-  payment_due_at: string;
-  status: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  total: number;
-  page: number;
-  per_page: number;
-}
-
-export async function getProducts(page = 1, perPage = 20): Promise<PaginatedResponse<ScalevProduct>> {
-  return apiFetch<PaginatedResponse<ScalevProduct>>(`/public/items?per_page=${perPage}&page=${page}`);
-}
-
-export async function searchProducts(query: string, page = 1, perPage = 20): Promise<PaginatedResponse<ScalevProduct>> {
-  return apiFetch<PaginatedResponse<ScalevProduct>>(`/public/items?q=${encodeURIComponent(query)}&per_page=${perPage}&page=${page}`);
-}
-
-export async function getProductDetail(slug: string): Promise<ScalevProduct> {
-  return apiFetch<ScalevProduct>(`/public/products/${slug}`);
-}
-
-export async function getVariantPricing(ids: string[]): Promise<ScalevVariant[]> {
-  return apiFetch<ScalevVariant[]>(`/public/variants/pricing?ids=${ids.join(',')}`);
-}
-
-export async function getGuestCart(guestToken: string): Promise<ScalevCart> {
-  return apiFetch<ScalevCart>('/public/cart', { guestToken });
-}
-
-export async function addToCart(
-  productId: string,
-  quantity: number,
-  guestToken: string,
-  variantId?: string
-): Promise<ScalevCart> {
-  return apiFetch<ScalevCart>('/public/cart/items', {
-    method: 'POST',
-    body: { product_id: productId, quantity, variant_id: variantId },
-    guestToken,
+export const getProducts = (params: { per_page?: number; page?: number; search?: string } = {}) => {
+  const q = new URLSearchParams({
+    per_page: String(params.per_page || 20),
+    page: String(params.page || 1),
+    ...(params.search ? { search: params.search } : {}),
   });
-}
+  return scalevFetch(`/public/items?${q}`);
+};
 
-export async function updateCartItem(
-  itemId: string,
-  quantity: number,
-  guestToken: string
-): Promise<ScalevCart> {
-  return apiFetch<ScalevCart>(`/public/cart/items/${itemId}`, {
+export const getProductDetail = (slug: string) =>
+  scalevFetch(`/public/products/${slug}`);
+
+export const getGuestCart = () => scalevFetch('/public/cart');
+
+export const addToCart = (variantId: number, quantity = 1) =>
+  scalevFetch('/public/cart/items', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'variant', variant_id: variantId, quantity }),
+  });
+
+export const updateCartItem = (itemId: number, quantity: number) =>
+  scalevFetch(`/public/cart/items/${itemId}`, {
     method: 'PATCH',
-    body: { quantity },
-    guestToken,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ quantity }),
   });
-}
 
-export async function removeCartItem(
-  itemId: string,
-  guestToken: string
-): Promise<ScalevCart> {
-  return apiFetch<ScalevCart>(`/public/cart/items/${itemId}`, {
-    method: 'DELETE',
-    guestToken,
-  });
-}
+export const removeCartItem = (itemId: number) =>
+  scalevFetch(`/public/cart/items/${itemId}`, { method: 'DELETE' });
 
-export async function getProvinces(): Promise<ScalevLocation[]> {
-  return apiFetch<ScalevLocation[]>('/public/locations/provinces');
-}
+export const getProvinces = () => scalevFetch('/public/locations/provinces');
+export const getCities = (provinceId: number) =>
+  scalevFetch(`/public/locations/cities?province_id=${provinceId}`);
+export const getSubdistricts = (cityId: number) =>
+  scalevFetch(`/public/locations/subdistricts?city_id=${cityId}`);
 
-export async function getCities(provinceId: string): Promise<ScalevLocation[]> {
-  return apiFetch<ScalevLocation[]>(`/public/locations/cities?province_id=${provinceId}`);
-}
-
-export async function getSubdistricts(cityId: string): Promise<ScalevLocation[]> {
-  return apiFetch<ScalevLocation[]>(`/public/locations/subdistricts?city_id=${cityId}`);
-}
-
-export async function getShippingOptions(
-  guestToken: string,
-  body: {
-    address: string;
-    province_id: string;
-    city_id: string;
-    subdistrict_id: string;
-    postal_code: string;
-  }
-): Promise<ScalevShippingOption[]> {
-  return apiFetch<ScalevShippingOption[]>('/public/checkout/shipping-options', {
+export const getShippingOptions = (payload: object) =>
+  scalevFetch('/public/checkout/shipping-options', {
     method: 'POST',
-    body,
-    guestToken,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
-}
 
-export async function getCheckoutSummary(
-  guestToken: string,
-  body: {
-    shipping_option: string;
-    shipping_cost: number;
-  }
-): Promise<ScalevCheckoutSummary> {
-  return apiFetch<ScalevCheckoutSummary>('/public/checkout/summary', {
+export const getCheckoutSummary = (payload: object) =>
+  scalevFetch('/public/checkout/summary', {
     method: 'POST',
-    body,
-    guestToken,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
-}
 
-export async function submitCheckout(
-  guestToken: string,
-  body: {
-    customer_name: string;
-    customer_phone: string;
-    customer_email: string;
-    address: string;
-    province_id: string;
-    city_id: string;
-    subdistrict_id: string;
-    postal_code: string;
-    shipping_option: string;
-    shipping_cost: number;
-    payment_method: string;
-    notes?: string;
-  }
-): Promise<ScalevOrder> {
-  return apiFetch<ScalevOrder>('/public/checkout', {
+export const submitCheckout = (payload: object) =>
+  scalevFetch('/public/checkout', {
     method: 'POST',
-    body,
-    guestToken,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
-}
 
-export async function getOrderBySlug(secretSlug: string): Promise<ScalevOrder> {
-  return apiFetch<ScalevOrder>(`/public/orders/${secretSlug}`);
-}
+export const getOrderBySlug = (secretSlug: string) =>
+  scalevFetch(`/public/orders/${secretSlug}`);
 
-export async function uploadTransferProof(
-  secretSlug: string,
-  file: File
-): Promise<{ transfer_proof_url: string }> {
+export const uploadTransferProof = async (secretSlug: string, file: File) => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await fetch(`${API_BASE}/public/orders/${secretSlug}/transfer-proof-upload`, {
-    method: 'POST',
-    headers: {
-      'X-API-Key': API_KEY,
-      'X-Store-ID': STORE_ID,
-    },
-    body: formData,
-  });
+  const headers = new Headers();
+  headers.set('X-Scalev-Storefront-Api-Key', API_KEY);
+  const guestToken = localStorage.getItem('scalev_guest_token');
+  if (guestToken) headers.set('X-Scalev-Guest-Token', guestToken);
 
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || `Upload failed: ${res.status}`);
-  }
-
+  const res = await fetch(
+    `${API_BASE}/v3/stores/${STORE_ID}/public/orders/${secretSlug}/transfer-proof-upload`,
+    { method: 'POST', credentials: 'omit', headers, body: formData }
+  );
+  if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
   return res.json();
-}
+};
 
-export async function updateOrderTransferProof(
-  secretSlug: string,
-  transferProofUrl: string
-): Promise<ScalevOrder> {
-  return apiFetch<ScalevOrder>(`/public/orders/${secretSlug}`, {
-    method: 'PATCH',
-    body: { transfer_proof_url: transferProofUrl },
-  });
-}
+export const formatRupiah = (amount: number) =>
+  new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(amount);
+
+export const refreshCartBadge = async () => {
+  try {
+    const cart = await getGuestCart();
+    const total = (cart.items || []).reduce((sum: number, item: any) => sum + item.quantity, 0);
+    document.querySelectorAll('[data-cart-count]').forEach((el) => {
+      el.textContent = String(total);
+      (el as HTMLElement).style.display = total === 0 ? 'none' : 'flex';
+    });
+    localStorage.setItem('scalev_cart_count', String(total));
+    return total;
+  } catch {
+    return 0;
+  }
+};
