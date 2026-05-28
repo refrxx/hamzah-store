@@ -365,6 +365,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       location_id: selectedLocationId || parseInt(subdistrictEl.value),
       courier_service_id: parseInt(selectedRadio.value),
       warehouse_unique_id: selectedRadio.dataset.warehouse || '',
+      shipping_cost: parseInt(selectedRadio.dataset.cost || '0'),
       payment_method: 'bank_transfer',
     };
   }
