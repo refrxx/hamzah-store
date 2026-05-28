@@ -21,7 +21,8 @@ async function scalevFetch(path: string, init: RequestInit = {}) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as any).message || `Scalev error: ${res.status}`);
+    console.error('Scalev error body:', JSON.stringify(err, null, 2));
+    throw new Error(JSON.stringify(err));
   }
 
   return res.json();

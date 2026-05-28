@@ -1,85 +1,146 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import BottomNav from '../components/BottomNav.astro';
 ---
 <BaseLayout title="Checkout - Hamzah Quran">
-  <header class="sticky top-0 z-50 bg-white border-b px-4 py-3" style="border-color:var(--border)">
+  <header class="sticky top-0 z-50 bg-white border-b px-4 py-3 flex items-center gap-2" style="border-color:#e0e0e0">
     <a href="/cart" onclick="history.back();return false;" class="flex items-center gap-2">
       <span class="material-symbols-outlined" style="color:var(--text-primary)">arrow_back</span>
-      <h1 class="font-bold text-base" style="color:var(--text-primary)">Checkout</h1>
     </a>
+    <h1 class="font-bold text-base" style="color:var(--text-primary)">Checkout</h1>
   </header>
 
-  <div class="p-4 space-y-4 pb-32">
-    <div class="bg-white rounded-lg p-4">
-      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">DATA PENERIMA</h3>
-      <div class="space-y-3">
-        <input id="field-name" type="text" placeholder="Nama Lengkap" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
-        <input id="field-phone" type="tel" placeholder="Nomor HP" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
-        <input id="field-email" type="email" placeholder="Email" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
+  <div class="py-3 space-y-3">
+    <!-- Alamat Pengiriman -->
+    <div class="bg-white rounded-lg mx-3 mb-3 overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center gap-2" style="border-color:#f0f0f0">
+        <span class="material-symbols-outlined text-sm" style="color:var(--blue)">location_on</span>
+        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary)">Alamat Pengiriman</span>
+      </div>
+      <div class="p-4 space-y-3">
+        <div class="flex gap-3">
+          <input id="field-name" type="text" placeholder="Nama lengkap"
+            class="w-full px-3 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+            style="border-color:#e0e0e0;color:var(--text-primary)"
+            onfocus="this.style.borderColor='#1A5FB4'" onblur="this.style.borderColor='#e0e0e0'" />
+          <input id="field-phone" type="tel" placeholder="No. HP"
+            class="w-full px-3 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+            style="border-color:#e0e0e0;color:var(--text-primary)"
+            onfocus="this.style.borderColor='#1A5FB4'" onblur="this.style.borderColor='#e0e0e0'" />
+        </div>
+        <textarea id="field-address" placeholder="Alamat lengkap (jalan, gang, no. rumah)" rows="2"
+          class="w-full px-3 py-2.5 rounded-lg border text-sm outline-none transition-colors resize-none"
+          style="border-color:#e0e0e0;color:var(--text-primary)"
+          onfocus="this.style.borderColor='#1A5FB4'" onblur="this.style.borderColor='#e0e0e0'"></textarea>
+        <div class="flex gap-3">
+          <select id="field-province"
+            class="flex-1 px-3 py-2.5 rounded-lg border text-sm outline-none appearance-none bg-white"
+            style="border-color:#e0e0e0;color:var(--text-primary)">
+            <option value="">Provinsi</option>
+          </select>
+          <select id="field-city"
+            class="flex-1 px-3 py-2.5 rounded-lg border text-sm outline-none appearance-none bg-white"
+            style="border-color:#e0e0e0;color:var(--text-primary)" disabled>
+            <option value="">Kota</option>
+          </select>
+        </div>
+        <div class="flex gap-3">
+          <select id="field-subdistrict"
+            class="flex-1 px-3 py-2.5 rounded-lg border text-sm outline-none appearance-none bg-white"
+            style="border-color:#e0e0e0;color:var(--text-primary)" disabled>
+            <option value="">Kecamatan</option>
+          </select>
+          <input id="field-postal" type="text" placeholder="Kode Pos"
+            class="w-28 px-3 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+            style="border-color:#e0e0e0;color:var(--text-primary)"
+            onfocus="this.style.borderColor='#1A5FB4'" onblur="this.style.borderColor='#e0e0e0'" />
+        </div>
+        <input id="field-email" type="email" placeholder="Email (opsional)"
+          class="w-full px-3 py-2.5 rounded-lg border text-sm outline-none transition-colors"
+          style="border-color:#e0e0e0;color:var(--text-primary)"
+          onfocus="this.style.borderColor='#1A5FB4'" onblur="this.style.borderColor='#e0e0e0'" />
       </div>
     </div>
 
-    <div class="bg-white rounded-lg p-4">
-      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">ALAMAT PENGIRIMAN</h3>
-      <div class="space-y-3">
-        <textarea id="field-address" placeholder="Alamat Lengkap (jalan, gang, no. rumah)" rows="3" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all resize-none" style="border-color:var(--border);color:var(--text-primary)"></textarea>
-        <select id="field-province" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)">
-          <option value="">Pilih Provinsi</option>
-        </select>
-        <select id="field-city" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" disabled>
-          <option value="">Pilih Kota</option>
-        </select>
-        <select id="field-subdistrict" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" disabled>
-          <option value="">Pilih Kecamatan</option>
-        </select>
-        <input id="field-postal" type="text" placeholder="Kode Pos" class="w-full px-3 py-2.5 bg-gray-50 rounded-lg text-sm border outline-none transition-all" style="border-color:var(--border);color:var(--text-primary)" />
+    <!-- Produk -->
+    <div class="bg-white rounded-lg mx-3 mb-3 overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center gap-2" style="border-color:#f0f0f0">
+        <span class="material-symbols-outlined text-sm" style="color:var(--blue)">inventory_2</span>
+        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary)">Produk</span>
+      </div>
+      <div id="cart-items-preview" class="p-4">
+        <div class="flex items-center justify-center py-8">
+          <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
       </div>
     </div>
 
-    <div class="bg-white rounded-lg p-4">
-      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">METODE PENGIRIMAN</h3>
-      <button id="btn-check-ongkir" class="w-full py-2.5 rounded-lg font-semibold text-sm" style="background:var(--gold);color:#212121">
-        Cek Ongkir
-      </button>
-      <div id="shipping-options" class="mt-3 space-y-2"></div>
-    </div>
-
-    <div class="bg-white rounded-lg p-4">
-      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">METODE PEMBAYARAN</h3>
-      <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-        <input type="radio" name="payment" value="transfer_bank" checked class="accent-blue-700" />
-        <span class="text-sm">Transfer Bank</span>
+    <!-- Opsi Pengiriman -->
+    <div class="bg-white rounded-lg mx-3 mb-3 overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center gap-2" style="border-color:#f0f0f0">
+        <span class="material-symbols-outlined text-sm" style="color:var(--blue)">local_shipping</span>
+        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary)">Opsi Pengiriman</span>
+      </div>
+      <div class="p-4">
+        <button id="btn-check-ongkir"
+          class="w-full py-2.5 rounded-lg font-semibold text-sm text-white transition-opacity"
+          style="background:var(--blue)">
+          Cek Ongkir
+        </button>
+        <div id="shipping-options" class="mt-3 space-y-2"></div>
       </div>
     </div>
 
-    <div class="bg-white rounded-lg p-4">
-      <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">RINGKASAN ORDER</h3>
-      <div id="checkout-items" class="space-y-2"></div>
-      <div class="border-t mt-3 pt-3 space-y-1" style="border-color:var(--border)">
+    <!-- Metode Pembayaran -->
+    <div class="bg-white rounded-lg mx-3 mb-3 overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center gap-2" style="border-color:#f0f0f0">
+        <span class="material-symbols-outlined text-sm" style="color:var(--blue)">account_balance</span>
+        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary)">Metode Pembayaran</span>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center gap-3 p-3 rounded-lg border" style="border-color:#e0e0e0">
+          <input type="radio" name="payment" value="bank_transfer" checked class="accent-blue-700" />
+          <span class="text-sm font-medium" style="color:var(--text-primary)">Transfer Bank</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rincian Pembayaran -->
+    <div class="bg-white rounded-lg mx-3 mb-3 overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center gap-2" style="border-color:#f0f0f0">
+        <span class="material-symbols-outlined text-sm" style="color:var(--blue)">receipt_long</span>
+        <span class="text-xs font-bold uppercase tracking-wider" style="color:var(--text-secondary)">Rincian Pembayaran</span>
+      </div>
+      <div class="p-4 space-y-2">
         <div class="flex justify-between text-sm">
-          <span style="color:var(--text-secondary)">Subtotal</span>
-          <span id="checkout-subtotal" class="font-medium">Rp 0</span>
+          <span style="color:var(--text-secondary)">Subtotal Produk</span>
+          <span id="summary-subtotal" class="font-medium" style="color:var(--text-primary)">Rp 0</span>
         </div>
         <div class="flex justify-between text-sm">
-          <span style="color:var(--text-secondary)">Ongkir</span>
-          <span id="checkout-shipping" class="font-medium">Rp 0</span>
+          <span style="color:var(--text-secondary)">Ongkos Kirim</span>
+          <span id="summary-shipping" class="font-medium" style="color:var(--text-primary)">-</span>
         </div>
-        <div class="flex justify-between text-sm font-bold pt-2 mt-2" style="border-top:1px solid var(--border)">
+        <div class="border-t pt-2 mt-2 flex justify-between text-sm font-bold" style="border-color:#f0f0f0">
           <span>Total</span>
-          <span id="checkout-total" style="color:var(--red)">Rp 0</span>
+          <span id="summary-total" style="color:var(--blue)">Rp 0</span>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t p-4 z-50" style="border-color:var(--border)">
-    <button id="btn-submit-order" class="w-full py-3 rounded-lg font-bold text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed" style="background:var(--blue)">
-      Bayar Sekarang
+  <div class="h-24"></div>
+
+  <!-- Sticky Bottom Bar -->
+  <div class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t z-50 p-3 flex items-center gap-3" style="border-color:#e0e0e0">
+    <div class="flex-1">
+      <p class="text-xs" style="color:var(--text-secondary)">Total Pembayaran</p>
+      <p id="sticky-total" class="text-base font-bold" style="color:var(--blue)">Rp 0</p>
+    </div>
+    <button id="submit-checkout-btn"
+      class="px-6 py-3 rounded-lg text-white font-bold text-sm flex-shrink-0 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+      style="background:var(--blue)">
+      Buat Pesanan
     </button>
   </div>
-
-  <BottomNav active="cart" />
 </BaseLayout>
 
 <script>
@@ -87,7 +148,7 @@ import BottomNav from '../components/BottomNav.astro';
 
   let cartItems: any[] = [];
   let selectedShipping: any = null;
-  let formData: any = {};
+  let selectedLocationId: number | null = null;
 
   const provinceEl = document.getElementById('field-province') as HTMLSelectElement;
   const cityEl = document.getElementById('field-city') as HTMLSelectElement;
@@ -95,12 +156,17 @@ import BottomNav from '../components/BottomNav.astro';
 
   function $(id: string) { return document.getElementById(id)!; }
 
+  function formatRupiahInline(amount: number) {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+  }
+
   async function init() {
     try {
       const cart = await getGuestCart();
       cartItems = cart.items || [];
       if (!cartItems.length) { window.location.href = '/cart'; return; }
-      renderItems();
+      renderCartItems();
+      updatePaymentSummary(0);
     } catch {
       window.location.href = '/cart';
     }
@@ -115,40 +181,45 @@ import BottomNav from '../components/BottomNav.astro';
     } catch {}
   }
 
-  function renderItems() {
-    const container = $('checkout-items');
-    container.innerHTML = '';
-    cartItems.forEach((item: any) => {
+  function renderCartItems() {
+    const container = $('cart-items-preview');
+    container.innerHTML = cartItems.map((item: any) => {
       const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.svg';
       const name = item.product?.name || 'Produk';
-      container.innerHTML += `
-        <div class="flex items-center gap-3">
-          <img src="${img}" class="w-12 h-12 object-cover rounded bg-gray-100" />
+      const variant = item.variant?.name || '';
+      const price = item.price || 0;
+      return `
+        <div class="flex gap-3 py-3 border-b last:border-0" style="border-color:#f0f0f0">
+          <img src="${img}" class="w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-gray-100" onerror="this.src='/placeholder.svg'" />
           <div class="flex-1 min-w-0">
-            <p class="text-sm line-clamp-1" style="color:var(--text-primary)">${name}</p>
-            <p class="text-xs" style="color:var(--text-secondary)">${item.quantity}x</p>
+            <p class="text-sm font-medium line-clamp-2" style="color:var(--text-primary)">${name}</p>
+            ${variant ? `<p class="text-xs mt-0.5" style="color:var(--text-secondary)">${variant}</p>` : ''}
+            <div class="flex items-center justify-between mt-1">
+              <span class="text-sm font-bold" style="color:var(--blue)">${formatRupiah(price)}</span>
+              <span class="text-xs" style="color:var(--text-secondary)">x${item.quantity}</span>
+            </div>
           </div>
-          <span class="text-sm font-medium">${formatRupiah(item.price * item.quantity)}</span>
         </div>
       `;
-    });
-    const subtotal = cartItems.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
-    $('checkout-subtotal').textContent = formatRupiah(subtotal);
-    updateTotal();
+    }).join('');
   }
 
-  function updateTotal() {
-    const subtotal = cartItems.reduce((s: number, i: any) => s + i.price * i.quantity, 0);
-    const shipping = selectedShipping?.cost || 0;
-    $('checkout-shipping').textContent = formatRupiah(shipping);
-    $('checkout-total').textContent = formatRupiah(subtotal + shipping);
+  function updatePaymentSummary(shippingCost = 0) {
+    const subtotal = cartItems.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0);
+    const total = subtotal + shippingCost;
+
+    $('summary-subtotal').textContent = formatRupiahInline(subtotal);
+    $('summary-shipping').textContent = shippingCost > 0 ? formatRupiahInline(shippingCost) : '-';
+    $('summary-total').textContent = formatRupiahInline(total);
+    $('sticky-total').textContent = formatRupiahInline(total);
   }
 
   provinceEl.addEventListener('change', async () => {
-    cityEl.innerHTML = '<option value="">Pilih Kota</option>';
+    cityEl.innerHTML = '<option value="">Kota</option>';
     cityEl.disabled = true;
-    subdistrictEl.innerHTML = '<option value="">Pilih Kecamatan</option>';
+    subdistrictEl.innerHTML = '<option value="">Kecamatan</option>';
     subdistrictEl.disabled = true;
+    selectedLocationId = null;
     if (!provinceEl.value) return;
     try {
       const cities = await getCities(parseInt(provinceEl.value));
@@ -162,8 +233,9 @@ import BottomNav from '../components/BottomNav.astro';
   });
 
   cityEl.addEventListener('change', async () => {
-    subdistrictEl.innerHTML = '<option value="">Pilih Kecamatan</option>';
+    subdistrictEl.innerHTML = '<option value="">Kecamatan</option>';
     subdistrictEl.disabled = true;
+    selectedLocationId = null;
     if (!cityEl.value) return;
     try {
       const subdistricts = await getSubdistricts(parseInt(cityEl.value));
@@ -176,19 +248,27 @@ import BottomNav from '../components/BottomNav.astro';
     } catch {}
   });
 
-  $('btn-check-ongkir').addEventListener('click', async () => {
-    formData = {
-      name: ($('field-name') as HTMLInputElement).value,
-      phone: ($('field-phone') as HTMLInputElement).value,
-      email: ($('field-email') as HTMLInputElement).value,
-      address: ($('field-address') as HTMLTextAreaElement).value,
-      province_id: provinceEl.value,
-      city_id: cityEl.value,
-      subdistrict_id: subdistrictEl.value,
-      postal_code: ($('field-postal') as HTMLInputElement).value,
-    };
+  subdistrictEl.addEventListener('change', () => {
+    selectedLocationId = subdistrictEl.value ? parseInt(subdistrictEl.value) : null;
+  });
 
-    if (!formData.name || !formData.phone || !formData.address || !formData.province_id || !formData.city_id || !formData.subdistrict_id) {
+  function buildCartItemsPayload() {
+    return cartItems.map((item: any) => {
+      if (item.type === 'variant') {
+        return { type: 'variant', variant_id: item.variant_id, quantity: item.quantity };
+      } else if (item.type === 'bundle_price_option') {
+        return { type: 'bundle_price_option', bundle_price_option_id: item.bundle_price_option_id, quantity: item.quantity };
+      }
+    }).filter(Boolean);
+  }
+
+  $('btn-check-ongkir').addEventListener('click', async () => {
+    const name = ($('field-name') as HTMLInputElement).value.trim();
+    const phone = ($('field-phone') as HTMLInputElement).value.trim();
+    const address = ($('field-address') as HTMLTextAreaElement).value.trim();
+    const postalCode = ($('field-postal') as HTMLInputElement).value.trim();
+
+    if (!name || !phone || !address || !provinceEl.value || !cityEl.value || !subdistrictEl.value) {
       alert('Lengkapi alamat pengiriman terlebih dahulu');
       return;
     }
@@ -197,67 +277,122 @@ import BottomNav from '../components/BottomNav.astro';
     btn.disabled = true; btn.textContent = 'Memuat...';
 
     try {
-      const options = await getShippingOptions({
-        destination: {
-          location_id: parseInt(formData.subdistrict_id),
-          postal_code: formData.postal_code,
-        },
-        payment_method: 'bank_transfer',
-      });
+      const cartItemsPayload = buildCartItemsPayload();
+      if (!cartItemsPayload.length) { alert('Keranjang kosong!'); return; }
+
+      const payload = {
+        items: cartItemsPayload,
+        location_id: parseInt(subdistrictEl.value),
+        shipping_province: provinceEl.options[provinceEl.selectedIndex].text,
+        shipping_city: cityEl.options[cityEl.selectedIndex].text,
+        shipping_subdistrict: subdistrictEl.options[subdistrictEl.selectedIndex].text,
+        shipping_postal_code: postalCode,
+      };
+
+      console.log('Shipping options payload:', JSON.stringify(payload, null, 2));
+
+      const result = await getShippingOptions(payload);
+      console.log('Shipping options response:', result);
+
+      const options = result.data || [];
       const container = $('shipping-options');
       container.innerHTML = '';
-      options.forEach((opt: any, idx: number) => {
+
+      if (!options.length) {
+        container.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">Tidak ada opsi pengiriman tersedia</p>';
+        return;
+      }
+
+      const courierNames: Record<string, string> = {
+        jnt: 'J&T', jne: 'JNE', anteraja: 'AnterAja', self_courier: 'Kurir Toko',
+        sicepat: 'SiCepat', ide: 'ID Express', ninja: 'Ninja Xpress',
+      };
+
+      options.forEach((opt: any) => {
+        const courierLabel = courierNames[opt.courier_code] || opt.courier_code?.toUpperCase() || 'Kurir';
+        const serviceLabel = opt.name || opt.service_code || '';
+        const displayName = `${courierLabel} ${serviceLabel}`.trim();
+        const etd = opt.etd ? `${opt.etd} hari` : '-';
+        const price = opt.cost || 0;
+        const isCod = opt.is_cod;
+
         const div = document.createElement('div');
-        div.className = 'flex items-center gap-3 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors';
+        div.className = 'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors';
+        div.style.borderColor = '#e0e0e0';
         div.innerHTML = `
-          <input type="radio" name="shipping" value="${idx}" class="accent-blue-700" />
-          <div class="flex-1">
-            <p class="text-sm font-medium">${opt.courier} - ${opt.service}</p>
-            <p class="text-xs" style="color:var(--text-secondary)">Estimasi: ${opt.estimation}</p>
+          <input type="radio" name="shipping" value="${opt.courier_service_id}" data-cost="${price}" data-warehouse="${opt.warehouse_unique_id}" class="accent-blue-700 flex-shrink-0" />
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium" style="color:var(--text-primary)">${displayName}</p>
+            <p class="text-xs" style="color:var(--text-secondary)">Estimasi: ${etd}${isCod ? ' · <span style="color:green">COD</span>' : ''}</p>
           </div>
-          <span class="text-sm font-bold" style="color:var(--red)">${formatRupiah(opt.cost)}</span>
+          <span class="text-sm font-bold flex-shrink-0" style="color:var(--blue)">${price === 0 ? 'Gratis' : formatRupiah(price)}</span>
         `;
         div.addEventListener('click', () => {
-          container.querySelectorAll('div').forEach(d => d.classList.remove('ring-2', 'ring-blue-700'));
-          div.classList.add('ring-2', 'ring-blue-700');
-          selectedShipping = opt;
+          container.querySelectorAll('.ring-2').forEach(el => el.classList.remove('ring-2', 'ring-[#1A5FB4]'));
+          div.classList.add('ring-2', 'ring-[#1A5FB4]');
           div.querySelector('input')!.checked = true;
-          updateTotal();
+          selectedShipping = opt;
+          updatePaymentSummary(price);
         });
         container.appendChild(div);
       });
-    } catch {
+    } catch (err) {
+      console.error('Shipping options error:', err);
       alert('Gagal mengecek ongkir');
     } finally {
       btn.disabled = false; btn.textContent = 'Cek Ongkir';
     }
   });
 
-  $('btn-submit-order').addEventListener('click', async () => {
-    if (!selectedShipping) { alert('Pilih metode pengiriman'); return; }
+  function buildCheckoutPayload() {
+    const selectedRadio = document.querySelector('input[name="shipping"]:checked') as HTMLInputElement;
+    if (!selectedRadio) throw new Error('Pilih metode pengiriman');
 
-    const btn = $('btn-submit-order') as HTMLButtonElement;
-    btn.disabled = true; btn.textContent = 'Memproses...';
+    let phone = (($('field-phone') as HTMLInputElement).value || '').replace(/\D/g, '');
+    if (phone.startsWith('0')) phone = '62' + phone.slice(1);
+    if (phone.startsWith('+')) phone = phone.slice(1);
 
+    return {
+      items: buildCartItemsPayload(),
+      customer_name: ($('field-name') as HTMLInputElement).value.trim(),
+      customer_email: ($('field-email') as HTMLInputElement).value.trim(),
+      customer_phone: phone,
+      shipping_address: ($('field-address') as HTMLTextAreaElement).value.trim(),
+      shipping_province: provinceEl.options[provinceEl.selectedIndex]?.text || '',
+      shipping_city: cityEl.options[cityEl.selectedIndex]?.text || '',
+      shipping_subdistrict: subdistrictEl.options[subdistrictEl.selectedIndex]?.text || '',
+      shipping_postal_code: ($('field-postal') as HTMLInputElement).value.trim(),
+      location_id: selectedLocationId || parseInt(subdistrictEl.value),
+      courier_service_id: parseInt(selectedRadio.value),
+      warehouse_unique_id: selectedRadio.dataset.warehouse || '',
+      payment_method: 'bank_transfer',
+    };
+  }
+
+  $('submit-checkout-btn').addEventListener('click', async () => {
     try {
-      const order = await submitCheckout({
-        customer_name: formData.name,
-        customer_phone: formData.phone,
-        customer_email: formData.email,
-        address: formData.address,
-        province_id: parseInt(formData.province_id),
-        city_id: parseInt(formData.city_id),
-        subdistrict_id: parseInt(formData.subdistrict_id),
-        postal_code: formData.postal_code,
-        shipping_option: `${selectedShipping.courier} - ${selectedShipping.service}`,
-        shipping_cost: selectedShipping.cost,
-        payment_method: 'transfer_bank',
-      });
+      const payload = buildCheckoutPayload();
+      console.log('Checkout payload:', JSON.stringify(payload, null, 2));
+
+      const btn = $('submit-checkout-btn') as HTMLButtonElement;
+      btn.disabled = true; btn.textContent = 'Memproses...';
+
+      const order = await submitCheckout(payload);
       localStorage.removeItem('scalev_guest_token');
       window.location.href = `/order/?slug=${order.secret_slug}`;
     } catch (err: any) {
+      console.error('Checkout error:', err);
       alert(err.message || 'Gagal memproses pesanan');
-      btn.disabled = false; btn.textContent = 'Bayar Sekarang';
+      const btn = $('submit-checkout-btn') as HTMLButtonElement;
+      btn.disabled = false; btn.textContent = 'Buat Pesanan';
+    }
+  });
+
+  document.addEventListener('change', (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    if (target.name === 'shipping') {
+      const cost = parseFloat(target.dataset.cost || '0');
+      updatePaymentSummary(cost);
     }
   });
 
