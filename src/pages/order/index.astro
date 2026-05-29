@@ -32,17 +32,26 @@ import BottomNav from '../../components/BottomNav.astro';
     <div class="bg-white rounded-lg p-4">
       <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">DETAIL PRODUK</h3>
       <div id="order-items" class="space-y-2"></div>
-      <div class="border-t mt-3 pt-3" style="border-color:var(--border)">
+      <div class="border-t mt-3 pt-3 space-y-1" style="border-color:var(--border)">
         <div class="flex justify-between text-sm">
-          <span style="color:var(--text-secondary)">Total</span>
-          <span id="order-total" class="font-bold" style="color:var(--red)"></span>
+          <span style="color:var(--text-secondary)">Subtotal</span>
+          <span id="order-subtotal" class="font-medium"></span>
+        </div>
+        <div class="flex justify-between text-sm">
+          <span style="color:var(--text-secondary)">Ongkos Kirim</span>
+          <span id="order-shipping" class="font-medium"></span>
+        </div>
+        <div class="flex justify-between text-sm font-bold pt-1">
+          <span>Total</span>
+          <span id="order-total" style="color:var(--red)"></span>
         </div>
       </div>
     </div>
 
     <div class="bg-white rounded-lg p-4">
       <h3 class="text-xs font-semibold mb-3" style="color:var(--text-secondary)">INSTRUKSI PEMBAYARAN</h3>
-      <div class="space-y-1 text-sm">
+      <div id="payment-section" class="space-y-1 text-sm">
+        <p><span style="color:var(--text-secondary)">Metode:</span> <span id="pay-method" class="font-medium"></span></p>
         <p><span style="color:var(--text-secondary)">Bank:</span> <span id="pay-bank" class="font-medium"></span></p>
         <p><span style="color:var(--text-secondary)">No. Rekening:</span> <span id="pay-account" class="font-medium"></span></p>
         <p><span style="color:var(--text-secondary)">Atas Nama:</span> <span id="pay-name" class="font-medium"></span></p>
@@ -125,18 +134,36 @@ import BottomNav from '../../components/BottomNav.astro';
         `;
       });
 
+      const productPrice = order.product_price || order.gross_revenue;
+      const shippingCost = order.shipping_cost || 0;
+      document.getElementById('order-subtotal')!.textContent = formatRupiah(productPrice);
+      document.getElementById('order-shipping')!.textContent = formatRupiah(shippingCost);
       document.getElementById('order-total')!.textContent = formatRupiah(order.gross_revenue);
 
-      if (order.payment_instructions) {
-        document.getElementById('pay-bank')!.textContent = order.payment_instructions.bank_name;
-        document.getElementById('pay-account')!.textContent = order.payment_instructions.account_number;
-        document.getElementById('pay-name')!.textContent = order.payment_instructions.account_name;
+      document.getElementById('pay-method')!.textContent = order.payment_method || 'Transfer Bank';
+
+      const accBank = order.payment_account_holder || order.payment_instructions?.bank_name || '';
+      const accNumber = order.payment_account_number || order.payment_instructions?.account_number || '';
+      const accName = order.payment_instructions?.account_name || '';
+
+      if (accBank || accNumber || accName) {
+        document.getElementById('pay-bank')!.textContent = accBank;
+        document.getElementById('pay-account')!.textContent = accNumber;
+        document.getElementById('pay-name')!.textContent = accName;
+      } else if (order.store?.payment_accounts?.length) {
+        const acc = order.store.payment_accounts[0];
+        document.getElementById('pay-bank')!.textContent = acc.bank_name || '';
+        document.getElementById('pay-account')!.textContent = acc.account_number || '';
+        document.getElementById('pay-name')!.textContent = acc.account_name || '';
       }
+
       document.getElementById('pay-total')!.textContent = formatRupiah(order.gross_revenue);
       document.getElementById('pay-due')!.textContent = formatDate(order.payment_due_at);
 
       const waLink = document.getElementById('wa-link') as HTMLAnchorElement;
-      waLink.href = `https://wa.me/?text=Halo%20saya%20ingin%20konfirmasi%20pesanan%20${order.id}`;
+      const phone = order.handler_phone || '';
+      const waText = encodeURIComponent(`Halo saya ingin konfirmasi pesanan ${order.id}`);
+      waLink.href = phone ? `https://wa.me/${phone}?text=${waText}` : `https://wa.me/?text=${waText}`;
     }
 
     document.getElementById('btn-upload-proof')?.addEventListener('click', async () => {
