@@ -282,7 +282,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       const payload = {
         items: cartItemsPayload,
-        location_id: parseInt(subdistrictEl.value),
+        shipping_location_id: parseInt(subdistrictEl.value),
         shipping_province: provinceEl.options[provinceEl.selectedIndex].text,
         shipping_city: cityEl.options[cityEl.selectedIndex].text,
         shipping_subdistrict: subdistrictEl.options[subdistrictEl.selectedIndex].text,
@@ -362,10 +362,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       shipping_city: cityEl.options[cityEl.selectedIndex]?.text || '',
       shipping_subdistrict: subdistrictEl.options[subdistrictEl.selectedIndex]?.text || '',
       shipping_postal_code: ($('field-postal') as HTMLInputElement).value.trim(),
-      location_id: selectedLocationId || parseInt(subdistrictEl.value),
-      courier_service_id: parseInt(selectedRadio.value),
-      warehouse_unique_id: selectedRadio.dataset.warehouse || '',
-      shipping_cost: parseInt(selectedRadio.dataset.cost || '0'),
+      shipping_location_id: selectedLocationId || parseInt(subdistrictEl.value),
       payment_method: 'bank_transfer',
     };
   }
