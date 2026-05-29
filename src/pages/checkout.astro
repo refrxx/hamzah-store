@@ -185,7 +185,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const container = $('cart-items-preview');
     container.innerHTML = cartItems.map((item: any) => {
       const img = item.variant?.images?.[0]?.url || item.product?.images?.[0]?.url || '/placeholder.svg';
-      const name = item.product?.name || 'Produk';
+      const name = item.name || item.product?.name || 'Produk';
       const variant = item.variant?.name || '';
       const price = item.price || 0;
       return `
